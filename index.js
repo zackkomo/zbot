@@ -1,6 +1,8 @@
 
-const botsettings = require("./botsettings.json");
 const ignoreList = require("./ignore.json");
+require('dotenv').config()
+const token = process.env.CLIENT_TOKEN;
+const prefix = process.env.PREFIX;
 const Discord = require("discord.js");
 const fs = require("fs");
 const pollList = "./commands/pollList.json";
@@ -8,10 +10,10 @@ const store = require("./commands/pollUtils.js");
 const emotes = ["\u0031\u20E3", "\u0032\u20E3", "\u0033\u20E3", "\u0034\u20E3", "\u0035\u20E3", "\u0036\u20E3", "\u0037\u20E3", "\u0038\u20E3", "\u0039\u20E3"];
 
 
-const prefix = botsettings.prefix;
+
 const bot = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 bot.commands = new Discord.Collection();
-bot.login(botsettings.token);
+
 
 fs.readdir("./commands/", (err, files) => {
     if (err) console.error(err);
@@ -96,5 +98,7 @@ bot.on('messageReactionRemove', async (reaction, user) => {
         store.update(reaction, user, "-");
     }
 });
+console.log("token is " + process.env.CLIENT_TOKEN)
+bot.login(token);
 
 

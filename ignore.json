@@ -1,18 +1,9 @@
-
 {
-    "ignore": ["pollList.json","pollUtils.js"],
-
-    "events": {
-        "restart": "osascript -e 'display notification \"App restarted due to:\n'$FILENAME'\" with title \"nodemon\"'"
-      }
-    
-
-{
-    "ignore": ["pollList.json","pollUtils.js"],
-
-    "events": {
-        "restart": "osascript -e 'display notification \"App restarted due to:\n'$FILENAME'\" with title \"nodemon\"'"
-      }
-    
-
+  "ignore": [
+    "pollList.json",
+    "pollUtils.js"
+  ],
+  "events": {
+    "restart": "osascript -e 'display notification \"App restarted due to:\n'$FILENAME'\" with title \"nodemon\"'"
+  }
 }
