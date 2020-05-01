@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 {
     "ignore": [
        
         "pollList.json"
     ]
+=======
+{
+    "ignore": [
+       
+        "pollList.json"
+    ]
+>>>>>>> dc67d49149bb70ad56ea684a668dfb1aa084886f
 }
