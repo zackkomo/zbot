@@ -38,7 +38,7 @@ module.exports.run = async (bot, message, args) => {
     const pollmes = {
         title: title_g,
         author: message.author.username,
-        channel: message.channel,
+        channel: message.channel.id,
         options: field,
         description: null,
         mes: mes,

@@ -63,14 +63,20 @@ exports.remove = async (num, message) => {
         if (arrayOfObjects.polls.length <= num || num < 0) {
             return message.channel.send("There is no poll with that poll number");
         }
+        else if (message.channel.id != arrayOfObjects.polls[num].poll.channel){
+            return message.channel.send("There is no poll in this channel with that poll number");
+        }
         else {
-            message.channel.send(arrayOfObjects.polls[num].poll.mes + arrayOfObjects.polls[num].poll.description);
-
-            message.reply("Are you sure you sure you wish to remove the above poll (Voting on this poll does not count. To check use !pollCheck [number]) ? You have 10 seconds to reply [y/n]");
-
+            let id1 = arrayOfObjects.polls[num].id;
+            let id2;
+            let id3;
+            message.reply(arrayOfObjects.polls[num].poll.mes + arrayOfObjects.polls[num].poll.description + "Are you sure you sure you wish to remove the above poll (Voting on this poll does not count. To check use !pollCheck [number]) ? You have 10 seconds to reply [y/n]")
+            .then(message => {id2 = message.id});
+            
             const filter = m => m.author.id === message.author.id;
-            message.channel.awaitMessages(filter, { max: 1, time: 10000 }).then(collected => {
+            message.channel.awaitMessages(filter, { max: 1, time: 30000 }).then(collected => {
                 if (collected.first().content === "n") return message.channel.send("Removal aborted.");
+                id3 = collected.first().id;
                 arrayOfObjects.polls[num] = null;
                 arrayOfObjects.pollCount += -1;
                 fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
@@ -78,13 +84,29 @@ exports.remove = async (num, message) => {
                     console.log(`Done Removing poll ${num}!`);
                     return message.channel.send(`Done Removing poll ${num}!`);
                 })
+            }).then(() => {
+                message.channel.messages.fetch(id1)
+                    .then(message => {
+                        message.delete();
+
+                    })
+                message.channel.messages.fetch(id2)
+                    .then(message => {
+                        message.delete();
+
+                    })
+                message.channel.messages.fetch(id3)
+                    .then(message => {
+                        message.delete();
+
+                    })
             })
         }
     })
 }
 
 exports.check = async (num, message) => {
-
+    
     fs.readFile(pollList, 'utf-8', function (err, data) {
         if (err) throw err
 
@@ -92,6 +114,9 @@ exports.check = async (num, message) => {
         let arrayOfObjects = JSON.parse(data)
         if (arrayOfObjects.polls.length <= num || num < 0) {
             return message.channel.send("There is no poll with that poll number");
+        }
+        else if (message.channel.id != arrayOfObjects.polls[num].poll.channel){
+            return message.channel.send("There is no poll in this channel with that poll number");
         }
         else {
             let oldMes = message;
@@ -109,9 +134,6 @@ exports.check = async (num, message) => {
             });
         }
     })
-
-
-
 }
 
 exports.update = async (reaction, user, action) => {
@@ -186,24 +208,29 @@ exports.update = async (reaction, user, action) => {
     })
 }
 
-exports.refresh = async () => {
+exports.refresh = async (message) => {
+
+    fs.readFile(pollList, 'utf-8', function (err, data) {
+        if (err) throw err
 
 
+        let arrayOfObjects = JSON.parse(data)
+        let ids = [];
+        for (let i=0; i<arrayOfObjects.pollCount +1; i++){
+            if (message.channel.id === arrayOfObjects.polls[i].poll.channel){
+                
+            ids.push(arrayOfObjects.polls[i].id);
+            }
+        }
+        //ids.forEach((f , i) =>{
+        message.channel.messages.fetch(ids[0]).then(message => {
+            let x = message.reactions.cache.values();
+            console.log();
 
-    // fs.readFile(pollList, 'utf-8', function (err, data) {
-    //     if (err) throw err
-
-
-    //     let arrayOfObjects = JSON.parse(data)
-    //     let ids = [];
-    //     for (let i=0; i<arrayOfObjects.polls.length; i++){
-    //         ids.push(arrayOfObjects.polls[i].id);
-    //     }
-
-    //     ids.forEach((f , i) =>{
-    //         arrayOfObjects.polls[i].poll.channel.fe
-    //     })
-    // })
+        })
+        
+        //})
+    })
 }
 
 

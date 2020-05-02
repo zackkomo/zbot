@@ -42,7 +42,6 @@ fs.readdir("./commands/", (err, files) => {
 bot.on("ready", () => {
     console.log(`${bot.user.username} is ready!`);
     console.log(`Source directory: ${__dirname}`);
-    store.refresh();
 });
 
 bot.on("message", async message => {
