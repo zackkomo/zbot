@@ -17,8 +17,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Pull and run
+    - name: Run
       run: |
-        echo I am here,
-        ls
+        cd /home/zackkomo/
+        cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
+        cd /home/zackkomo/zBot/zBot/zBot/zBot/
+        npm start
+        
+
 
