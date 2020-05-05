@@ -57,6 +57,12 @@ bot.on("ready", () => {
 bot.on("message", async message => {
     if (message.author.bot) return;
 
+    //Fun function
+    if (message.content === "fd"){
+        message.channel.send( "Fuck you Doug");
+        message.delete();
+    }
+
     let messageArr = message.content.split(" ");
     let command = messageArr[0]; //save first token
     let args = messageArr.slice(1); //remove first token, the rest are args
