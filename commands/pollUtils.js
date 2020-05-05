@@ -63,7 +63,7 @@ exports.remove = async (num, message) => {
         if (arrayOfObjects.polls.length <= num || num < 0) {
             return message.channel.send("There is no poll with that poll number");
         }
-        else if (message.channel.id != arrayOfObjects.polls[num].poll.channel){
+        else if (message.channel.id != arrayOfObjects.polls[num].poll.channel) {
             return message.channel.send("There is no poll in this channel with that poll number");
         }
         else {
@@ -71,8 +71,8 @@ exports.remove = async (num, message) => {
             let id2;
             let id3;
             message.reply(arrayOfObjects.polls[num].poll.mes + arrayOfObjects.polls[num].poll.description + "Are you sure you sure you wish to remove the above poll (Voting on this poll does not count. To check use !pollCheck [number]) ? You have 10 seconds to reply [y/n]")
-            .then(message => {id2 = message.id});
-            
+                .then(message => { id2 = message.id });
+
             const filter = m => m.author.id === message.author.id;
             message.channel.awaitMessages(filter, { max: 1, time: 30000 }).then(collected => {
                 if (collected.first().content === "n") return message.channel.send("Removal aborted.");
@@ -106,7 +106,7 @@ exports.remove = async (num, message) => {
 }
 
 exports.check = async (num, message) => {
-    
+
     fs.readFile(pollList, 'utf-8', function (err, data) {
         if (err) throw err
 
@@ -115,26 +115,31 @@ exports.check = async (num, message) => {
         if (arrayOfObjects.pollCount < num || num < 0) {
             return message.channel.send("There is no poll with that poll number");
         }
-        else if (message.channel.id != arrayOfObjects.polls[num].poll.channel){
+        else if (message.channel.id != arrayOfObjects.polls[num].poll.channel) {
             return message.channel.send("There is no poll in this channel with that poll number");
         }
         else {
-            let oldMes = message.id;
+            let usrMes = message.id;
+            let oldMes;
             message.channel.send(arrayOfObjects.polls[num].poll.mes + arrayOfObjects.polls[num].poll.description + " . This will now act as the new poll").then((message) => {
-                console.log("changing poll #" + num + " id from " + oldMes.id + " to " + message.id);
+                oldMes = arrayOfObjects.polls[num].id;
                 arrayOfObjects.polls[num].id = message.id;
                 for (let step = 0; step < arrayOfObjects.polls[num].poll.options.length; step++) {
                     message.react(emotes[step]);
                 }
-                
+
                 fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
                     if (err) throw err
                     console.log(`Done updating poll ${num}!`);
                 });
-                message.channel.messages.fetch(oldMes)
+                message.channel.messages.fetch(usrMes)
                     .then(message => {
                         message.delete();
 
+                    })
+                message.channel.messages.fetch(oldMes)
+                    .then(message => {
+                        message.delete();
                     })
             });
         }
@@ -221,10 +226,10 @@ exports.refresh = async (message) => {
 
         let arrayOfObjects = JSON.parse(data)
         let ids = [];
-        for (let i=0; i<arrayOfObjects.pollCount +1; i++){
-            if (message.channel.id === arrayOfObjects.polls[i].poll.channel){
-                
-            ids.push(arrayOfObjects.polls[i].id);
+        for (let i = 0; i < arrayOfObjects.pollCount + 1; i++) {
+            if (message.channel.id === arrayOfObjects.polls[i].poll.channel) {
+
+                ids.push(arrayOfObjects.polls[i].id);
             }
         }
         //ids.forEach((f , i) =>{
@@ -233,7 +238,7 @@ exports.refresh = async (message) => {
             console.log();
 
         })
-        
+
         //})
     })
 }
