@@ -118,6 +118,18 @@ exports.check = async (num, message) => {
         else if (message.channel.id != arrayOfObjects.polls[num].poll.channel) {
             return message.channel.send("There is no poll in this channel with that poll number");
         }
+        else if (num === null) {
+            let mesCheck = "```Available polls \n";
+            for (let step = 0; step < arrayOfObjects.polls.length; step++) {
+                if (arrayOfObjects.polls[i] != null) {
+                    if (arrayOfObjects.polls[i].poll.channel === message.channel.id){
+                        mesCheck += "# " + step  + " " + arrayOfObjects.polls[i].poll.title;
+                    }
+                }
+            }
+            mesCheck += "```";
+            return message.channel.send("There is no poll in this channel with that poll number");
+        }
         else {
             let usrMes = message.id;
             let oldMes;
@@ -155,7 +167,6 @@ exports.update = async (reaction, user, action) => {
 
         let pollInd = -1;
         for (let step = 0; step < arrayOfObjects.pollCount + 1; step++) {
-            console.log("I m here");
             if (reaction.message.id === arrayOfObjects.polls[step].id) {
                 pollInd = step;
             }
