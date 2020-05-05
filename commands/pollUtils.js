@@ -112,7 +112,7 @@ exports.check = async (num, message) => {
 
 
         let arrayOfObjects = JSON.parse(data)
-        if (arrayOfObjects.polls.length <= num || num < 0) {
+        if (arrayOfObjects.pollCount <= num || num < 0) {
             return message.channel.send("There is no poll with that poll number");
         }
         else if (message.channel.id != arrayOfObjects.polls[num].poll.channel){
