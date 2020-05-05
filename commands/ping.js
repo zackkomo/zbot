@@ -6,5 +6,5 @@ module.exports.run = async (bot, message, args) => {
 
 module.exports.help = {
     name: "ping",
-    description: "Replies with Pong when called"
+    description: "Description: Replies with Pong when called.\nUse: !ping"
 }

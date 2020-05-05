@@ -23,13 +23,13 @@ module.exports.run = async (bot, message, args) => {
             jsfiles.forEach((f, i) => {
                 let props = require(`./${f}`);
                 if (props.help.name === args[0]) {
-                    message.channel.send("```" + " !" + args[0] + " " + props.help.description + "```");
+                    message.author.send("```" + " !" + args[0] + " " + props.help.description + "```");
                 }
                 cmdnames += props.help.name + "\n";
             })
             cmdnames += "```";
             if (args[0] === "commands"){
-            message.channel.send(cmdnames);
+            message.author.send(cmdnames);
             }
         })
     }

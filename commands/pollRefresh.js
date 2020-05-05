@@ -7,5 +7,5 @@ module.exports.run = async (bot, message, args) => {
 
 module.exports.help = {
     name: "pollRefresh",
-    description: 'Recounts the votes on polls. Used when people vote while the bot was down. Enter !pollRefresh to use.'
+    description: 'UNDER CONSTRUCTION .Recounts the votes on polls. Used when people vote while the bot was down. Enter !pollRefresh to use.'
 }
