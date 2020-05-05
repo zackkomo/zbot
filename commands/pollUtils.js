@@ -119,6 +119,7 @@ exports.check = async (num, message) => {
             return message.channel.send("There is no poll in this channel with that poll number");
         }
         else {
+            let oldMes = message.id;
             message.channel.send(arrayOfObjects.polls[num].poll.mes + arrayOfObjects.polls[num].poll.description + " . This will now act as the new poll").then((message) => {
                 console.log("changing poll #" + num + " id from " + oldMes.id + " to " + message.id);
                 arrayOfObjects.polls[num].id = message.id;
@@ -130,8 +131,12 @@ exports.check = async (num, message) => {
                     if (err) throw err
                     console.log(`Done updating poll ${num}!`);
                 });
+                message.channel.messages.fetch(oldMes)
+                    .then(message => {
+                        message.delete();
+
+                    })
             });
-            message.delete();
         }
     })
 }
