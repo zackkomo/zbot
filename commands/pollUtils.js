@@ -119,19 +119,19 @@ exports.check = async (num, message) => {
             return message.channel.send("There is no poll in this channel with that poll number");
         }
         else {
-            let oldMes = message;
-            message.channel.send(arrayOfObjects.polls[num].poll.mes + arrayOfObjects.polls[num].poll.description).then((message) => {
+            message.channel.send(arrayOfObjects.polls[num].poll.mes + arrayOfObjects.polls[num].poll.description + " . This will now act as the new poll").then((message) => {
                 console.log("changing poll #" + num + " id from " + oldMes.id + " to " + message.id);
                 arrayOfObjects.polls[num].id = message.id;
                 for (let step = 0; step < arrayOfObjects.polls[num].poll.options.length; step++) {
                     message.react(emotes[step]);
                 }
-                oldMes.delete();
+                
                 fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
                     if (err) throw err
                     console.log(`Done updating poll ${num}!`);
                 });
             });
+            message.delete();
         }
     })
 }
