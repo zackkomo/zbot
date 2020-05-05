@@ -14,14 +14,13 @@ jobs:
         node-version: [12.x]
 
     steps:
-    - run: pm2 list
     - uses: actions/checkout@v2
     - name: Run
       run: |
         cd /home/zackkomo/
         cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
+        bash pm2script.sh
         cd /home/zackkomo/zBot/zBot/zBot/zBot/
-        pm2 restart zBot
         
 
 
