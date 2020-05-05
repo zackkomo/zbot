@@ -14,11 +14,16 @@ jobs:
         node-version: [12.x]
 
     steps:
+    - name: Save Polls
+      run: |
+        cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
+        cp pollList.json /home/zackkomo
     - uses: actions/checkout@v2
     - name: Run
       run: |
         cd /home/zackkomo/
         cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
+        cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
         bash pm2script.sh
         cd /home/zackkomo/zBot/zBot/zBot/zBot/
         
