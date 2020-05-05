@@ -22,7 +22,6 @@ jobs:
         cd /home/zackkomo/
         cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
         cd /home/zackkomo/zBot/zBot/zBot/zBot/
-        npm start
         
 
 
