@@ -36,6 +36,16 @@ fs.readdir("./commands/", (err, files) => {
         }
     })
 
+    if (!jsfiles.includes(pollList)){
+        let arrayOfObjects = {
+            "polls" : [],
+            "pollCount": -1
+        }
+        fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
+            if (err) throw err
+            console.log(`Done updating poll ${num}!`);
+        });
+    }
     console.log(`Loaded ${jsfiles.length} commands.`);
 })
 
