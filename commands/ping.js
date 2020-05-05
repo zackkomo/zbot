@@ -1,7 +1,7 @@
 const Discord = module.require("discord.js")
 
 module.exports.run = async (bot, message, args) => {
-    message.channel.send("<@" + message.author + ">" + " Pong!");
+    message.channel.send("<@" + message.author + ">" + " Pong! test");
 }
 
 module.exports.help = {
