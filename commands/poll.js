@@ -15,7 +15,7 @@ module.exports.run = async (bot, message, args) => {
     }
     
     messageArr = messageArr.filter(x => !(x === " " | x === ""));
-
+    console.log(messageArr);
     if (messageArr.length < 1) return message.channel.send("There is no title or options");
     if (messageArr.length > 11) return message.channel.send("There are too many options! The max is 10.");
 

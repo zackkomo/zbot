@@ -15,19 +15,28 @@ bot.commands = new Discord.Collection();
 
 fs.readdir("./commands/", (err, files) => {
     if (err) console.error(err);
+    
+    if (!files.includes("pollList.json")){
+        let arrayOfObjects = {
+            "polls" : [],
+            "pollCount": -1
+        }
+        fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
+            if (err) throw err
+            console.log(`Creating pollList.json`);
+        });
+    }
 
     let jsfiles = files.filter(f => f.split(".").pop() === "js");
     if (jsfiles.length <= 0) {
         console.log("There are no commands do load");
         return;
     }
-
-
+    
     console.log("Loading..");
     jsfiles.forEach((f, i) => {
         if (ignoreList.ignore.indexOf(f) > -1) {
             jsfiles.splice(jsfiles.indexOf(f));
-
         }
         else {
             let props = require(`./commands/${f}`);
@@ -36,16 +45,7 @@ fs.readdir("./commands/", (err, files) => {
         }
     })
 
-    if (!jsfiles.includes(pollList)){
-        let arrayOfObjects = {
-            "polls" : [],
-            "pollCount": -1
-        }
-        fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
-            if (err) throw err
-            console.log(`Done updating poll ${num}!`);
-        });
-    }
+    
     console.log(`Loaded ${jsfiles.length} commands.`);
 })
 

@@ -4,3 +4,4 @@
 *.env.staging
 node_modules
 .idea
+pollList.json
