@@ -106,28 +106,28 @@ exports.remove = async (num, message) => {
 }
 
 exports.check = async (num, message) => {
-
+    console.log(num)
     fs.readFile(pollList, 'utf-8', function (err, data) {
         if (err) throw err
 
 
         let arrayOfObjects = JSON.parse(data)
-        if (arrayOfObjects.pollCount < num || num < 0) {
-            return message.channel.send("There is no poll with that poll number");
-        }
-        else if (message.channel.id != arrayOfObjects.polls[num].poll.channel) {
-            return message.channel.send("There is no poll in this channel with that poll number");
-        }
-        else if (num === null) {
-            let mesCheck = "```Available polls \n";
-            for (let step = 0; step < arrayOfObjects.polls.length; step++) {
+        if (num == null) {
+            let mesCheck = "```Available polls \n# | name \n---------\n";
+            for (let i = 0; i < arrayOfObjects.polls.length; i++) {
                 if (arrayOfObjects.polls[i] != null) {
-                    if (arrayOfObjects.polls[i].poll.channel === message.channel.id){
-                        mesCheck += "# " + step  + " " + arrayOfObjects.polls[i].poll.title;
+                    if (arrayOfObjects.polls[i].poll.channel === message.channel.id) {
+                        mesCheck += i + " |" + arrayOfObjects.polls[i].poll.title;
                     }
                 }
             }
             mesCheck += "```";
+            return message.channel.send(mesCheck);
+        }
+        else if (arrayOfObjects.pollCount < num || num < 0 || (num != null && arrayOfObjects.polls[num] == null)) {
+            return message.channel.send("There is no poll with that poll number");
+        }
+        else if (message.channel.id != arrayOfObjects.polls[num].poll.channel) {
             return message.channel.send("There is no poll in this channel with that poll number");
         }
         else {

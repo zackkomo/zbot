@@ -8,5 +8,5 @@ module.exports.run = async (bot, message, args) => {
 
 module.exports.help = {
     name: "pollCheck",
-    description: 'Checks a poll and renews it based on the number. Enter !pollCheck [number]. This will send a poll which will now take the votes"'
+    description: 'Checks a poll and renews it based on the number. Enter !pollCheck [number]. This will send a poll which will now take the votes. For a list of available polls, use !pollCheck"'
 }
