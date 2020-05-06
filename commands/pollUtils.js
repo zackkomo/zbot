@@ -5,7 +5,7 @@ const store = require(__dirname + "/pollUtils.js");
 const emotes = ["\u0031\u20E3", "\u0032\u20E3", "\u0033\u20E3", "\u0034\u20E3", "\u0035\u20E3", "\u0036\u20E3", "\u0037\u20E3", "\u0038\u20E3", "\u0039\u20E3"];
 
 
-exports.add = async (pollObj, num, message) => {
+exports.add = async (pollObj, num, message, op) => {
 
     let pollObject;
     fs.readFile(pollList, 'utf-8', function (err, data) {
@@ -177,11 +177,18 @@ exports.update = async (reaction, user, action) => {
 
             for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.votes.length; i++) {
                 let ind = arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username);
-                if (ind != -1) {
+                if (ind != -1 && arrayOfObjects.polls[pollInd].poll.type === 0 && action === "+"){
                     arrayOfObjects.polls[pollInd].poll.votes[i].splice(ind, 1);
                 }
                 if (i === emotes.indexOf(reaction.emoji.name) && action === "+") {
+                    if (arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username) == -1){
                     arrayOfObjects.polls[pollInd].poll.votes[i].push(user.username);
+                    }
+                }
+                if (i === emotes.indexOf(reaction.emoji.name) && action === "-") {
+                    if (arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username) != -1){
+                    arrayOfObjects.polls[pollInd].poll.votes[i].splice(ind, 1);
+                    }
                 }
                 total += arrayOfObjects.polls[pollInd].poll.votes[i].length;
             }
@@ -217,7 +224,6 @@ exports.update = async (reaction, user, action) => {
 
             arrayOfObjects.polls[pollInd].poll.mes = mes;
 
-            console.log("I m here");
             reaction.message.edit(mes + arrayOfObjects.polls[pollInd].poll.description);
 
             fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {

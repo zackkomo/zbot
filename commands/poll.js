@@ -33,6 +33,7 @@ module.exports.run = async (bot, message, args) => {
     mes +=  "```";
 
     const pollmes = {
+        type : 0,
         title: title_g,
         author: message.author.username,
         channel: message.channel.id,
