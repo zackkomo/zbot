@@ -1,6 +1,7 @@
 {
   "ignore": [
     "pollList.json",
+    "reminderList.json",
     "pollUtils.js"
   ],
   "events": {

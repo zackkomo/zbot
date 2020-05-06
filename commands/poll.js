@@ -9,6 +9,7 @@ module.exports.run = async (bot, message, args) => {
    
     let messageArr = (message.content.replace("\n","\\n").replace("\r","\\r")).split("\"");
     messageArr = messageArr.slice(1); //remove first token, the rest are args
+    
 
     if (!(count >= 4 && count%2 == 0)){
         return message.channel.send("Missmatch arguements. You need at least the title between 2 double quotes, as well as at least one option between 2 double quotes");
