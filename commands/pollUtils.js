@@ -117,7 +117,7 @@ exports.check = async (num, message) => {
             for (let i = 0; i < arrayOfObjects.polls.length; i++) {
                 if (arrayOfObjects.polls[i] != null) {
                     if (arrayOfObjects.polls[i].poll.channel === message.channel.id) {
-                        mesCheck += i + " |" + arrayOfObjects.polls[i].poll.title;
+                        mesCheck += i + " |" + arrayOfObjects.polls[i].poll.title + "\n";
                     }
                 }
             }
