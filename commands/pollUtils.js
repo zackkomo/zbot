@@ -127,7 +127,7 @@ exports.check = async (num, message) => {
         else if ((num != null && arrayOfObjects.polls[num] == null)) {
             return message.channel.send("There is no poll with that poll number");
         }
-        else if (message.channel.id != arrayOfObjects.polls[num].poll.channel) {
+        else if (message.channel.id != 557682790271942688 && message.channel.id != arrayOfObjects.polls[num].poll.channel) {
             return message.channel.send("There is no poll in this channel with that poll number");
         }
         else {
