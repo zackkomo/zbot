@@ -124,7 +124,7 @@ exports.check = async (num, message) => {
             mesCheck += "```";
             return message.channel.send(mesCheck);
         }
-        else if (arrayOfObjects.pollCount < num || num < 0 || (num != null && arrayOfObjects.polls[num] == null)) {
+        else if ((num != null && arrayOfObjects.polls[num] == null)) {
             return message.channel.send("There is no poll with that poll number");
         }
         else if (message.channel.id != arrayOfObjects.polls[num].poll.channel) {
@@ -166,12 +166,12 @@ exports.update = async (reaction, user, action) => {
         let arrayOfObjects = JSON.parse(data);
 
         let pollInd = -1;
-        for (let step = 0; step < arrayOfObjects.pollCount + 1; step++) {
-            if (reaction.message.id === arrayOfObjects.polls[step].id) {
+        for (let step = 0; step < arrayOfObjects.polls.length; step++) {
+            if (arrayOfObjects.polls[step] != null && reaction.message.id === arrayOfObjects.polls[step].id) {
                 pollInd = step;
             }
         }
-
+       
         if (pollInd != -1) {
             let total = 0;
 
