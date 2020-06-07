@@ -119,6 +119,7 @@ exports.check = async (num, message) => {
                     if (arrayOfObjects.polls[i].poll.channel === message.channel.id || message.channel.id != 557682790271942688) {
                         mesCheck += i + " |" + arrayOfObjects.polls[i].poll.title + "\n";
                     }
+                    
                 }
             }
             mesCheck += "```";
