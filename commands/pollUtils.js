@@ -116,7 +116,7 @@ exports.check = async (num, message) => {
             let mesCheck = "```Available polls \n# | name \n---------\n";
             for (let i = 0; i < arrayOfObjects.polls.length; i++) {
                 if (arrayOfObjects.polls[i] != null) {
-                    if (arrayOfObjects.polls[i].poll.channel === message.channel.id) {
+                    if (arrayOfObjects.polls[i].poll.channel === message.channel.id || message.channel.id != 557682790271942688) {
                         mesCheck += i + " |" + arrayOfObjects.polls[i].poll.title + "\n";
                     }
                 }
