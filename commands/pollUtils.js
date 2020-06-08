@@ -111,6 +111,7 @@ exports.check = async (num, message) => {
         if (err) throw err
 
 
+
         let arrayOfObjects = JSON.parse(data)
         if (num == null) {
             let mesCheck = "```Available polls \n# | name \n---------\n";
@@ -119,7 +120,7 @@ exports.check = async (num, message) => {
                     if (arrayOfObjects.polls[i].poll.channel === message.channel.id || message.channel.id != 557682790271942688) {
                         mesCheck += i + " |" + arrayOfObjects.polls[i].poll.title + "\n";
                     }
-                    
+
                 }
             }
             mesCheck += "```";
@@ -172,66 +173,70 @@ exports.update = async (reaction, user, action) => {
                 pollInd = step;
             }
         }
-       
+
         if (pollInd != -1) {
-            let total = 0;
+            if (emotes.indexOf(reaction.emoji.name) != -1) {
+                let total = 0;
 
-            for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.votes.length; i++) {
-                let ind = arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username);
-                if (ind != -1 && arrayOfObjects.polls[pollInd].poll.type === 0 && action === "+"){
-                    arrayOfObjects.polls[pollInd].poll.votes[i].splice(ind, 1);
+                for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.votes.length; i++) {
+                    let ind = arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username);
+                    if (ind != -1 && arrayOfObjects.polls[pollInd].poll.type === 0 && action === "+") {
+                        arrayOfObjects.polls[pollInd].poll.votes[i].splice(ind, 1);
+                    }
+                    if (i === emotes.indexOf(reaction.emoji.name) && action === "+") {
+                        if (arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username) == -1) {
+                            arrayOfObjects.polls[pollInd].poll.votes[i].push(user.username);
+                        }
+                    }
+                    if (i === emotes.indexOf(reaction.emoji.name) && action === "-") {
+                        if (arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username) != -1) {
+                            arrayOfObjects.polls[pollInd].poll.votes[i].splice(ind, 1);
+                        }
+                    }
+                    total += arrayOfObjects.polls[pollInd].poll.votes[i].length;
                 }
-                if (i === emotes.indexOf(reaction.emoji.name) && action === "+") {
-                    if (arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username) == -1){
-                    arrayOfObjects.polls[pollInd].poll.votes[i].push(user.username);
+
+                let votes = [];
+                for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.votes.length; i++) {
+                    if (total == 0) {
+                        votes.push(" ");
+                    }
+                    else {
+                        votes.push("[");
+                        let k = 0;
+                        while (k < arrayOfObjects.polls[pollInd].poll.votes[i].length / total * 10) {
+                            votes[i] += "+";
+                            k++;
+                        }
+                        while (k < 10) {
+                            votes[i] += " ";
+                            k++;
+                        }
+                        votes[i] += "] " + Math.trunc(arrayOfObjects.polls[pollInd].poll.votes[i].length / total * 100) + "%";
                     }
                 }
-                if (i === emotes.indexOf(reaction.emoji.name) && action === "-") {
-                    if (arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username) != -1){
-                    arrayOfObjects.polls[pollInd].poll.votes[i].splice(ind, 1);
-                    }
+
+
+                let mes = "```" + "\n" + "Poll by " + arrayOfObjects.polls[pollInd].poll.author + "\n" + arrayOfObjects.polls[pollInd].poll.title + "\n";
+
+
+                for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.options.length; i++) {
+                    mes += arrayOfObjects.polls[pollInd].poll.options[i] + " " + votes[i] + "\n" + "---------" + "\n";
                 }
-                total += arrayOfObjects.polls[pollInd].poll.votes[i].length;
+                mes += "```";
+
+                arrayOfObjects.polls[pollInd].poll.mes = mes;
+
+                reaction.message.edit(mes + arrayOfObjects.polls[pollInd].poll.description);
+
+                fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
+                    if (err) throw err
+                    console.log(`Done updating poll ${pollInd}!`);
+                });
             }
-
-            let votes = [];
-            for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.votes.length; i++) {
-                if (total == 0) {
-                    votes.push(" ");
-                }
-                else {
-                    votes.push("[");
-                    let k = 0;
-                    while (k < arrayOfObjects.polls[pollInd].poll.votes[i].length / total * 10) {
-                        votes[i] += "+";
-                        k++;
-                    }
-                    while (k < 10) {
-                        votes[i] += " ";
-                        k++;
-                    }
-                    votes[i] += "] " + Math.trunc(arrayOfObjects.polls[pollInd].poll.votes[i].length / total * 100) + "%";
-                }
+            else {
+                reaction.remove(user);
             }
-
-
-            let mes = "```" + "\n" + "Poll by " + arrayOfObjects.polls[pollInd].poll.author + "\n" + arrayOfObjects.polls[pollInd].poll.title + "\n";
-
-
-            for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.options.length; i++) {
-                mes += arrayOfObjects.polls[pollInd].poll.options[i] + " " + votes[i] + "\n" + "---------" + "\n";
-            }
-            mes += "```";
-
-            arrayOfObjects.polls[pollInd].poll.mes = mes;
-
-            reaction.message.edit(mes + arrayOfObjects.polls[pollInd].poll.description);
-
-            fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
-                if (err) throw err
-                console.log(`Done updating poll ${pollInd}!`);
-            });
-
         }
     })
 }

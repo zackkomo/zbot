@@ -105,10 +105,7 @@ bot.on('messageReactionAdd', async (reaction, user) => {
         }
     }
     //update the poll
-    if (emotes.indexOf(reaction.emoji.name) != -1) {
-        
-        store.update(reaction, user, "+");
-    }
+    store.update(reaction, user, "+");
 });
 
 bot.on('messageReactionRemove', async (reaction, user) => {
@@ -125,9 +122,7 @@ bot.on('messageReactionRemove', async (reaction, user) => {
         }
     }
     //update the poll
-    if (emotes.indexOf(reaction.emoji.name) != -1) {
-        store.update(reaction, user, "-");
-    }
+    store.update(reaction, user, "-");
 });
 
 //placeholder
