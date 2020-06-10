@@ -98,5 +98,5 @@ module.exports.run = async (bot, message, args) => {
 
 module.exports.help = {
     name: "reminder",
-    description: 'Description: Sets a reminder that messages you in the channel you initated the command. The syntax for the time is [number][identifier]. For example, if you want 2 minutes => 2m, for 5 hours => 5h. The 4 modes are s,m,h,d for seconds, minutes, hours, days.\nUse: !reminder [number][identifier] "tittle" i.e. !reminder 2s "test"'
+    description: 'Description: Sets a reminder that messages you in the channel you initated the command. The syntax for the time is [number][identifier]. For example, if you want 2 minutes => 2m, for 5 hours => 5h. The 4 modes are s,m,h,d for seconds, minutes, hours, days.\nUse: !reminder [number][identifier] "title" i.e. !reminder 2s "test"'
 }
