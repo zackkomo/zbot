@@ -14,7 +14,7 @@ const emotes = ["\u0031\u20E3", "\u0032\u20E3", "\u0033\u20E3", "\u0034\u20E3", 
 const bot = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 bot.commands = new Discord.Collection();
 
-//load all the commands
+//load all the files in commands folder
 fs.readdir("./commands/", (err, files) => {
     if (err) console.error(err);
     
@@ -30,7 +30,7 @@ fs.readdir("./commands/", (err, files) => {
         });
     }
 
-     //if reminderList for saving reminders doesn't exist, create it
+    //if reminderList for saving reminders doesn't exist, create it
     if (!files.includes("reminderList.json")){
         let arrayOfObjects = {
             "reminders" : [],
@@ -41,7 +41,7 @@ fs.readdir("./commands/", (err, files) => {
         });
     }
     
-    //get list of commands available to load and load them
+    //filter files that are js files to get the name of all commands
     let jsfiles = files.filter(f => f.split(".").pop() === "js");
     if (jsfiles.length <= 0) {
         console.log("There are no commands do load");
@@ -49,6 +49,7 @@ fs.readdir("./commands/", (err, files) => {
     }
     console.log("Loading..");
     let numCom = 0;
+    //print out available commands
     jsfiles.forEach((f, i) => {
         if (ignoreList.ignore.indexOf(f) == -1) {
             let props = require(`./commands/${f}`);
@@ -69,7 +70,7 @@ bot.on("ready", () => {
 
 //when a message is sent
 bot.on("message", async message => {
-    //check for bot message
+    //check for bot message and disregard
     if (message.author.bot) return;
 
     //Fun function
@@ -78,19 +79,18 @@ bot.on("message", async message => {
         message.delete();
     }
 
+    //Check if message is a command and parse it to the command file(starts with PREFIX)
     let messageArr = message.content.split(" ");
     let command = messageArr[0]; //save first token
     let args = messageArr.slice(1); //remove first token, the rest are args
-
-    //check for prefix
     if (!command.startsWith(prefix)) return;
 
-    //get command and run it
+    //get command name and if it is valid run it
     let cmd = bot.commands.get(command.slice(prefix.length));
     if (cmd) cmd.run(bot, message, args);
 });
 
-
+//when someone adds a reaction
 bot.on('messageReactionAdd', async (reaction, user) => {
     if (user.username === bot.user.username) return;  
     // When we receive a reaction we check if the reaction is partial or not
@@ -108,6 +108,7 @@ bot.on('messageReactionAdd', async (reaction, user) => {
     store.update(reaction, user, "+");
 });
 
+//when someone removes a reaction
 bot.on('messageReactionRemove', async (reaction, user) => {
     if (user.username === bot.user.username) return;
     // When we receive a reaction we check if the reaction is partial or not
@@ -164,5 +165,3 @@ function checkReminders(){
 //Log in the bot
 console.log("token is " + process.env.CLIENT_TOKEN)
 bot.login(token);
-
-

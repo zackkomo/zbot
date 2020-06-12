@@ -10,9 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^12.1.1",
-    "dotenv": "^8.2.0",
-    "nodemon": "^2.0.3"
+    "discord.js": "^12.2.0",
+    "dotenv": "^8.2.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
 }
