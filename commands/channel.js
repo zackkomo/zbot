@@ -45,7 +45,8 @@ module.exports.run = async (bot, message, args) => {
 
     for (let i = 0; i < messageArr.length; i++) {
         if (!message.guild.member(messageArr[i].replace(re, ""))) {
-            return message.channel.send("One of the users provided does not exist, try again");
+            message.channel.send("One of the users provided does not exist, try again");
+            return message.delete();
         }
 
         permissions.push({
