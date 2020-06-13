@@ -3,8 +3,10 @@ const fs = require("fs");
 
 
 module.exports.run = async (bot, message, args) => {
+    //default help
     if (args.length < 1) return message.channel.send("Ask about a command by sending !help [command name]. For a list of commands type !help commands");
 
+    //more than 1 arguement
     if (args.length != 0) {
         fs.readdir(__dirname, (err, files) => {
             if (err) console.error(err);
@@ -17,13 +19,12 @@ module.exports.run = async (bot, message, args) => {
                 }
             });
 
-            console.log(jsfiles);
             let cmdnames = "```Available commands: \n";
 
             jsfiles.forEach((f, i) => {
                 let props = require(`./${f}`);
                 if (props.help.name === args[0]) {
-                    message.author.send("```" + " !" + args[0] + " " + props.help.description + "```");
+                    message.author.send("```" + "!" + args[0] + "\n" + props.help.description + "```");
                 }
                 cmdnames += props.help.name + "\n";
             })
