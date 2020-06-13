@@ -1,5 +1,5 @@
 
-const ignoreList = require("./ignore.json");
+const ignoreList = require("./nodemon.json");
 require('dotenv').config()
 const token = process.env.CLIENT_TOKEN;
 const prefix = process.env.PREFIX;
