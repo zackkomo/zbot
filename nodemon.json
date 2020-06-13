@@ -1,7 +1,8 @@
 
 {
     "ignore": [
+        "pollList.json",
         "reminderList.json",
-        "pollList.json"
-    ]
+        "pollUtils.js"
+      ]
 }

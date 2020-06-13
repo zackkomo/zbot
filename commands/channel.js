@@ -9,13 +9,17 @@ module.exports.run = async (bot, message, args) => {
     let messageArr = (message.content.replace("\n", "\\n").replace("\r", "\\r")).split("\"");
     messageArr = messageArr.slice(1); //remove first token, the rest are args
 
-    if (!count >= 2 || count%2 != 0) {
-        return message.channel.send("Missmatch arguements. You need at least the title between 2 double quotes");
+    if (!count >= 2 || count % 2 != 0) {
+        message.author.send("Missmatch arguements. You need at least the title between 2 double quotes");
+        return message.delete();
     }
 
     messageArr = messageArr.filter(x => !(x === " " | x === ""));
 
-    if (messageArr.length > 11) return message.channel.send("There are too many arguements! The max is 10.");
+    if (messageArr.length > 11) {
+        message.author.send("There are too many arguements! The max is 10.");
+        return message.delete();
+    }
 
     let server = message.guild;
     let user = message.author.username;
@@ -43,7 +47,7 @@ module.exports.run = async (bot, message, args) => {
         if (!message.guild.member(messageArr[i].replace(re, ""))) {
             return message.channel.send("One of the users provided does not exist, try again");
         }
-       
+
         permissions.push({
             id: messageArr[i].replace(re, ""),
             allow: ['VIEW_CHANNEL']
@@ -57,9 +61,10 @@ module.exports.run = async (bot, message, args) => {
 
     let newChannel = server.channels.create(title, options).catch(err => {
         console.log(err);
-    return message.channel.send(err.message);
-})
-    
+        message.author.send(err.message);
+        return message.delete();
+    })
+    message.delete();
 }
 
 module.exports.help = {
