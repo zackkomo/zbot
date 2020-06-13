@@ -45,7 +45,7 @@ module.exports.run = async (bot, message, args) => {
 
     for (let i = 0; i < messageArr.length; i++) {
         if (!message.guild.member(messageArr[i].replace(re, ""))) {
-            message.channel.send("One of the users provided does not exist, try again");
+            message.author.send("One of the users provided does not exist, try again");
             return message.delete();
         }
 
