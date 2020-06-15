@@ -73,12 +73,6 @@ bot.on("message", async message => {
     //check for bot message and disregard
     if (message.author.bot) return;
 
-    //Fun function
-    if (message.content === "fd"){
-        message.channel.send( "Fuck you Doug");
-        message.delete();
-    }
-
     //Check if message is a command and parse it to the command file(starts with PREFIX)
     let messageArr = message.content.split(" ");
     let command = messageArr[0]; //save first token
