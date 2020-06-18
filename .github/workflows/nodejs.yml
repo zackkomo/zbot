@@ -12,10 +12,10 @@ jobs:
        matrix:
          node-version: [12.x]
     steps:
-      - name: test
+      - shell: bash
         run: |
-           pwd
-           ls
+             pwd
+             ls
     
     
     
