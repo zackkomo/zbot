@@ -14,8 +14,7 @@ jobs:
     steps:
       - shell: bash
         run: |
-            cd /home/zackkomo/test
-            touch here.txt
+            ls
     
     
     
