@@ -7,7 +7,7 @@ on:
 jobs:
   my_job:
     name: zBot
-    runs-on: ubuntu-18.04
+    runs-on: self-hosted
     strategy:     
        matrix:
          node-version: [12.x]
