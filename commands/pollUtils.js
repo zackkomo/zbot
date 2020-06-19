@@ -249,16 +249,38 @@ exports.refresh = async (message) => {
 
         let arrayOfObjects = JSON.parse(data)
         let ids = [];
-        for (let i = 0; i < arrayOfObjects.pollCount + 1; i++) {
-            if (message.channel.id === arrayOfObjects.polls[i].poll.channel) {
+        //for (let i = 0; i < arrayOfObjects.polls.length; i++) {
+            if (arrayOfObjects.polls[0] != null) {
 
-                ids.push(arrayOfObjects.polls[i].id);
-            }
-        }
-        //ids.forEach((f , i) =>{
-        message.channel.messages.fetch(ids[0]).then(message => {
-            let x = message.reactions.cache.values();
-            console.log();
+                bot.channels.fetch(arrayOfObjects.polls[0].poll.channel).then(channel => {
+                    channel.messages.fetch(arrayOfObjects.polls[0].id).then(message => {
+                        let reactions = message.reactions.cache;
+
+                      //  for (let step = 0; i < reactions.size; step++) {
+                            console.log(reactions.get(emotes[0]))
+                            console.log("Number of 1 vote :" + reactions.get(emotes[0]).count)
+                            reactions.get(emotes[0]).fetchUsers();
+                            console.log("Number of 1 vote :" + reactions.get(emotes[0]).count)
+                            
+                            
+                            
+                            
+                            // let reactionUsers = message.reactions.find(r => r.emoji.name === emotes[0]);
+                            // reactionUsers.fetchUsers().then(users => {
+                            //     console.log(users); 
+                            // });
+                            
+                            
+                            
+                            // .then(
+                            //     reaction => {
+                            //         console.log(reaction)
+                            //     })
+                     //   }
+
+                    
+                    })
+            })
 
         })
 
