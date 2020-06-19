@@ -26,8 +26,8 @@ jobs:
           cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
           cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
           whoami
-          sudo systemctl start zBot
           sudo systemctl status zBot
+          sudo /usr/sbin/service javaspringapi restart
          
     
     
