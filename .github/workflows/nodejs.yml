@@ -13,6 +13,10 @@ jobs:
          node-version: [12.x]
     steps:
       - shell: bash
+      - name: Stop bot
+        run: |
+            sudo systemctl stop zBot
+      - name: Preserve files
         run: |
             sudo systemctl stop zBot
             cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
@@ -20,14 +24,14 @@ jobs:
             cp reminderList.json /home/zackkomo
             
       - uses: actions/checkout@v2
-      - name: Run
+      - name: Restore files
         run: |
           cd /home/zackkomo/
           cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
           cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
           cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
-          whoami
-          systemctl status zBot
+      - name: start bot
+        run: |
           sudo /usr/sbin/service javaspringapi restart
          
     
