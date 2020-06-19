@@ -16,6 +16,7 @@ jobs:
       - name: Stopbot
         run: |
               sudo systemctl stop zBot
+              
       - name: Preservefiles
         run: |
               sudo systemctl stop zBot
@@ -24,12 +25,14 @@ jobs:
               cp reminderList.json /home/zackkomo
             
       - uses: actions/checkout@master
+        
       - name: Restorefiles
         run: |
           cd /home/zackkomo/
           cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
           cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
           cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
+          
       - name: startbot
         run: |
           sudo /usr/sbin/service javaspringapi restart
