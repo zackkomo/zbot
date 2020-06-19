@@ -14,23 +14,23 @@ jobs:
     steps:
       - shell: bash
       - name: Stop bot
-        run: |
-            sudo systemctl stop zBot
-      - name: Preserve files
-        run: |
-            sudo systemctl stop zBot
-            cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
-            cp pollList.json /home/zackkomo
-            cp reminderList.json /home/zackkomo
+          run: |
+              sudo systemctl stop zBot
+      name: Preserve files
+          run: |
+              sudo systemctl stop zBot
+              cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
+              cp pollList.json /home/zackkomo
+              cp reminderList.json /home/zackkomo
             
-      - uses: actions/checkout@v2
-      - name: Restore files
+      uses: actions/checkout@v2
+      name: Restore files
         run: |
           cd /home/zackkomo/
           cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
           cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
           cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
-      - name: start bot
+      name: start bot
         run: |
           sudo /usr/sbin/service javaspringapi restart
           echo hello
