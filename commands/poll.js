@@ -37,6 +37,7 @@ module.exports.run = async (bot, message, args) => {
         title: title_g,
         author: message.author.username,
         channel: message.channel.id,
+        guild: message.guild.id,
         options: field,
         description: null,
         mes: mes,

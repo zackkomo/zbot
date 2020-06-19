@@ -66,6 +66,7 @@ bot.on("ready", () => {
     console.log(`${bot.user.username} is ready!`);
     console.log(`Source directory: ${__dirname}`);
     checkReminders();
+    checkPolls();
 });
 
 //when a message is sent
@@ -73,11 +74,10 @@ bot.on("message", async message => {
     //check for bot message and disregard
     if (message.author.bot) return;
 
-    //Fun function
-    if (message.content === "fd"){
-        message.channel.send( "Fuck you Doug");
-        message.delete();
+    if (message.content === "testGit"){
+        return message.channel.send("CI/CD is set up");
     }
+
 
     //Check if message is a command and parse it to the command file(starts with PREFIX)
     let messageArr = message.content.split(" ");
@@ -128,6 +128,7 @@ bot.on('messageReactionRemove', async (reaction, user) => {
 
 //placeholder
 function checkPolls(){
+    store.refresh(bot);
     return;
 }
 
