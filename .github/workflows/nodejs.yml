@@ -3,31 +3,71 @@ name: self-hosted-runner
 on:
   push:
     branches: [ master ]
-
+  
 jobs:
-  build:
-
+  my_job:
+    name: zBot
     runs-on: self-hosted
-
-    strategy:
-      matrix:
-        node-version: [12.x]
-
+    strategy:     
+       matrix:
+         node-version: [12.x]
     steps:
-    - name: Save Polls
-      run: |
-        cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
-        cp pollList.json /home/zackkomo
-        cp reminderList.json /home/zackkomo
-    - uses: actions/checkout@v2
-    - name: Run
-      run: |
-        cd /home/zackkomo/
-        cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
-        cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
-        cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
-        bash pm2script.sh
-        cd /home/zackkomo/zBot/zBot/zBot/zBot/
+      - shell: bash
+        run: |
+            cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
+            cp pollList.json /home/zackkomo
+            cp reminderList.json /home/zackkomo
+      - uses: actions/checkout@v2
+      - name: Run
+        run: |
+          cd /home/zackkomo/
+          cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
+          cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
+          cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
+         
+    
+    
+    
+#   name: Test
+  
+#   steps:
+#       - shell: bash
+#         run: |
+#           expr 3 + 7 > math-homework.txt
+#       - name: Upload math result for job 1
+#         uses: actions/upload-artifact@v1
+#         with:
+#           name: homework
+#           path: math-homework.txt
+
+
+
+# # jobs:
+# #  -name: Test
+# #  runs-on: ubuntu-18.04
+# #  strategy:
+# #     
+
+# #  shell: bash
+
+      
+
+          
+        
+#     - name: Save Polls
+#       run: |
+#         cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
+#         cp pollList.json /home/zackkomo
+#         cp reminderList.json /home/zackkomo
+#     - uses: actions/checkout@v2
+#     - name: Run
+#       run: |
+#         cd /home/zackkomo/
+#         cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
+#         cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
+#         cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
+#         bash pm2script.sh
+#         cd /home/zackkomo/zBot/zBot/zBot/zBot/
         
 
 
