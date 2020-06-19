@@ -24,6 +24,7 @@ jobs:
           cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
           cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
           cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
+          whoami
           sudo systemctl restart zBot
           sudo systemctl status zBot
          
