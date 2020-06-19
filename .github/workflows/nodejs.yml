@@ -14,11 +14,11 @@ jobs:
     steps:
       - shell: bash
         run: |
-            systemctl status zBot
+            sudo systemctl stop zBot
             cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
             cp pollList.json /home/zackkomo
             cp reminderList.json /home/zackkomo
-            sudo systemctl stop zBot
+            
       - uses: actions/checkout@v2
       - name: Run
         run: |
