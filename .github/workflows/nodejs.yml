@@ -33,6 +33,7 @@ jobs:
       - name: start bot
         run: |
           sudo /usr/sbin/service javaspringapi restart
+          echo hello
          
     
     
