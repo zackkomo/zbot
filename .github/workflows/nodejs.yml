@@ -17,27 +17,27 @@ jobs:
         run: |
               sudo systemctl stop zBot
               
-      - name: Preservefiles
-        run: |
-              sudo systemctl stop zBot
-              cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
-              cp pollList.json /home/zackkomo
-              cp reminderList.json /home/zackkomo
+#       - name: Preservefiles
+#         run: |
+#               sudo systemctl stop zBot
+#               cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
+#               cp pollList.json /home/zackkomo
+#               cp reminderList.json /home/zackkomo
               
-      - name: push
-        uses: actions/checkout@master
+#       - name: push
+#         uses: actions/checkout@master
         
-      - name: Restorefiles
-        run: |
-          cd /home/zackkomo/
-          cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
-          cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
-          cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
+#       - name: Restorefiles
+#         run: |
+#           cd /home/zackkomo/
+#           cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
+#           cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
+#           cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
           
-      - name: startbot
-        run: |
-          sudo /usr/sbin/service javaspringapi restart
-          echo hello
+#       - name: startbot
+#         run: |
+#           sudo /usr/sbin/service javaspringapi restart
+#           echo hello
          
     
     
