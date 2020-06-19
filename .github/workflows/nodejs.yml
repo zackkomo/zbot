@@ -14,6 +14,7 @@ jobs:
     steps:
       - shell: bash
         run: |
+            sudo systemctl stop zBot
             cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
             cp pollList.json /home/zackkomo
             cp reminderList.json /home/zackkomo
