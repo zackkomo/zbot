@@ -17,15 +17,14 @@ jobs:
             cd /home/zackkomo/zBot/zBot/zBot/zBot/commands
             cp pollList.json /home/zackkomo
             cp reminderList.json /home/zackkomo
-            git pull
-            cd /home/zackkomo/
-            cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
-            cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
-            cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
-            systemctl restart zBot
-            systemctl status zBot
-
-    
+      - uses: actions/checkout@v2
+      - name: Run
+        run: |
+          cd /home/zackkomo/
+          cp .env /home/zackkomo/zBot/zBot/zBot/zBot/
+          cp pollList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
+          cp reminderList.json /home/zackkomo/zBot/zBot/zBot/zBot/commands
+         
     
     
     
