@@ -213,35 +213,7 @@ exports.refresh = async (bot) => {
     fs.readFile(pollList, 'utf-8', async function (err, data) {
         if (err) throw err
 
-
-
         let arrayOfObjects = JSON.parse(data)
-<<<<<<< HEAD
-        let ids = [];
-        //for (let i = 0; i < arrayOfObjects.polls.length; i++) {
-            if (arrayOfObjects.polls[0] != null) {
-
-                bot.channels.fetch(arrayOfObjects.polls[0].poll.channel).then(channel => {
-                    channel.messages.fetch(arrayOfObjects.polls[0].id).then(message => {
-                        let reactions = message.reactions.cache;
-
-                      //  for (let step = 0; i < reactions.size; step++) {
-                            console.log(reactions.get(emotes[0]))
-                            console.log("Number of 1 vote :" + reactions.get(emotes[0]).count)
-                            reactions.get(emotes[0]).users.fetch().then(people =>{
-                                console.log("people who voted :" + people)
-                            })
-                            
-                            // .then(
-                            //     reaction => {
-                            //         console.log(reaction)
-                            //     })
-                     //   }
-
-                    
-                    })
-            })
-=======
 
         getUsers(arrayOfObjects, bot).then((arrayChanges) => {
             fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
@@ -252,17 +224,12 @@ exports.refresh = async (bot) => {
                     updatePollMessage(arrayChanges[step], null, bot);
                 }
             });
->>>>>>> testing
+        })
 
 
-<<<<<<< HEAD
-}
-       // }
-=======
-
->>>>>>> testing
     })
 }
+
 
 async function getUsers(arrayOfObjects, bot) {
     let arrayChanges = [];
