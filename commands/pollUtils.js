@@ -106,7 +106,7 @@ exports.remove = async (num, message) => {
 }
 
 exports.check = async (num, message) => {
-    console.log(num)
+
     fs.readFile(pollList, 'utf-8', function (err, data) {
         if (err) throw err
 
@@ -160,7 +160,7 @@ exports.check = async (num, message) => {
     })
 }
 
-exports.update = async (reaction, user, action) => {
+exports.update = async (reaction, user, action, bot) => {
 
     fs.readFile(pollList, 'utf-8', function (err, data) {
         if (err) throw err
@@ -195,43 +195,10 @@ exports.update = async (reaction, user, action) => {
                     }
                     total += arrayOfObjects.polls[pollInd].poll.votes[i].length;
                 }
-
-                let votes = [];
-                for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.votes.length; i++) {
-                    if (total == 0) {
-                        votes.push(" ");
-                    }
-                    else {
-                        votes.push("[");
-                        let k = 0;
-                        while (k < arrayOfObjects.polls[pollInd].poll.votes[i].length / total * 10) {
-                            votes[i] += "+";
-                            k++;
-                        }
-                        while (k < 10) {
-                            votes[i] += " ";
-                            k++;
-                        }
-                        votes[i] += "] " + Math.trunc(arrayOfObjects.polls[pollInd].poll.votes[i].length / total * 100) + "%";
-                    }
-                }
-
-
-                let mes = "```" + "\n" + "Poll by " + arrayOfObjects.polls[pollInd].poll.author + "\n" + arrayOfObjects.polls[pollInd].poll.title + "\n";
-
-
-                for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.options.length; i++) {
-                    mes += arrayOfObjects.polls[pollInd].poll.options[i] + " " + votes[i] + "\n" + "---------" + "\n";
-                }
-                mes += "```";
-
-                arrayOfObjects.polls[pollInd].poll.mes = mes;
-
-                reaction.message.edit(mes + arrayOfObjects.polls[pollInd].poll.description);
-
                 fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
                     if (err) throw err
                     console.log(`Done updating poll ${pollInd}!`);
+                    updatePollMessage(pollInd, reaction.message, bot);
                 });
             }
             else {
@@ -241,53 +208,130 @@ exports.update = async (reaction, user, action) => {
     })
 }
 
-exports.refresh = async (message) => {
+exports.refresh = async (bot) => {
 
-    fs.readFile(pollList, 'utf-8', function (err, data) {
+    fs.readFile(pollList, 'utf-8', async function (err, data) {
         if (err) throw err
 
 
         let arrayOfObjects = JSON.parse(data)
-        let ids = [];
-        //for (let i = 0; i < arrayOfObjects.polls.length; i++) {
-            if (arrayOfObjects.polls[0] != null) {
 
-                bot.channels.fetch(arrayOfObjects.polls[0].poll.channel).then(channel => {
-                    channel.messages.fetch(arrayOfObjects.polls[0].id).then(message => {
-                        let reactions = message.reactions.cache;
-
-                      //  for (let step = 0; i < reactions.size; step++) {
-                            console.log(reactions.get(emotes[0]))
-                            console.log("Number of 1 vote :" + reactions.get(emotes[0]).count)
-                            reactions.get(emotes[0]).fetchUsers();
-                            console.log("Number of 1 vote :" + reactions.get(emotes[0]).count)
-                            
-                            
-                            
-                            
-                            // let reactionUsers = message.reactions.find(r => r.emoji.name === emotes[0]);
-                            // reactionUsers.fetchUsers().then(users => {
-                            //     console.log(users); 
-                            // });
-                            
-                            
-                            
-                            // .then(
-                            //     reaction => {
-                            //         console.log(reaction)
-                            //     })
-                     //   }
-
-                    
-                    })
-            })
+        getUsers(arrayOfObjects, bot).then((arrayChanges) => {
+            fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
+                if (err) throw err
+                console.log(`Done refreshing polls!`);
+                
+                for (let step = 0; step < arrayChanges.length; step ++){
+                    updatePollMessage(arrayChanges[step], null, bot);
+                }
+            });
 
         })
 
-        //})
+
     })
 }
 
+async function getUsers(arrayOfObjects, bot) {
+    let arrayChanges = [];
+    for (i = 0; i < arrayOfObjects.polls.length; i++) {
+        if (arrayOfObjects.polls[i] != null) {
 
+            await bot.channels.fetch(arrayOfObjects.polls[i].poll.channel).then(async channel => {
 
+                await channel.messages.fetch(arrayOfObjects.polls[i].id).then(async message => {
+                    //For every emoji reaction of a poll
 
+                    for (let step = 0; step < message.reactions.cache.size; step++) {
+
+                        let ids = [];
+                        await message.reactions.cache.get(emotes[step]).users.fetch().then(async users => {
+
+                            await users.array().forEach(async users => {
+                                if (users.username != bot.user.username) {
+                                    ids.push(users.username)
+                                }
+
+                            })
+                            if (arrayOfObjects.polls[i].poll.votes[step] != ids && arrayChanges.indexOf(i) < 0){
+                                arrayChanges.push(i);
+                            }
+                            arrayOfObjects.polls[i].poll.votes[step] = ids;
+                        })
+                    }
+                })
+
+            })
+        }
+    }
+    return arrayChanges;
+}
+
+async function updatePollMessage(pollInd, message, bot) {
+    
+
+    fs.readFile(pollList, 'utf-8',async function (err, data) {
+        if (err) throw err
+
+        
+        let arrayOfObjects = JSON.parse(data);
+       
+
+        if (message == null) {
+            await bot.channels.fetch(arrayOfObjects.polls[pollInd].poll.channel).then(async channel => {
+
+                await channel.messages.fetch(arrayOfObjects.polls[pollInd].id).then(async messageObj => {
+                    message = messageObj
+                })
+            })
+
+        }
+
+        //array to hold percentage message
+        let votes = [];
+        let total = 0;
+        for (let c = 0; c < arrayOfObjects.polls[pollInd].poll.votes.length; c++){
+            total += arrayOfObjects.polls[pollInd].poll.votes[c].length;
+        }
+
+        for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.votes.length; i++) {
+            //leave blank if no votes
+            if (total == 0) {
+                votes.push(" ");
+            }
+            else {
+                //format so the number of + reflect the percentage
+                votes.push("[");
+                let k = 0;
+                while (k < arrayOfObjects.polls[pollInd].poll.votes[i].length / total * 10) {
+                    votes[i] += "+";
+                    k++;
+                }
+                while (k < 10) {
+                    votes[i] += " ";
+                    k++;
+                }
+                votes[i] += "] " + Math.trunc(arrayOfObjects.polls[pollInd].poll.votes[i].length / total * 100) + "%";
+            }
+        }
+       
+
+        //recreate whole message
+        let mes = "```" + "\n" + "Poll by " + arrayOfObjects.polls[pollInd].poll.author + "\n" + arrayOfObjects.polls[pollInd].poll.title + "\n";
+        for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.options.length; i++) {
+            mes += arrayOfObjects.polls[pollInd].poll.options[i] + " " + votes[i] + "\n" + "---------" + "\n";
+        }
+        mes += "```";
+
+        //console.log(mes)
+        //save message in arrayofobjects
+        arrayOfObjects.polls[pollInd].poll.mes = mes;
+
+        message.edit(mes + arrayOfObjects.polls[pollInd].poll.description);
+
+        fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
+            if (err) throw err
+            console.log(`Updated Poll in channel`);
+        });
+    })
+}

@@ -66,18 +66,13 @@ bot.on("ready", () => {
     console.log(`${bot.user.username} is ready!`);
     console.log(`Source directory: ${__dirname}`);
     checkReminders();
+    checkPolls();
 });
 
 //when a message is sent
 bot.on("message", async message => {
     //check for bot message and disregard
     if (message.author.bot) return;
-
-    //Fun function
-    if (message.content === "fd"){
-        message.channel.send( "Fuck you Doug");
-        message.delete();
-    }
 
     //Check if message is a command and parse it to the command file(starts with PREFIX)
     let messageArr = message.content.split(" ");
@@ -105,7 +100,7 @@ bot.on('messageReactionAdd', async (reaction, user) => {
         }
     }
     //update the poll
-    store.update(reaction, user, "+");
+    store.update(reaction, user, "+", bot);
 });
 
 //when someone removes a reaction
@@ -123,11 +118,12 @@ bot.on('messageReactionRemove', async (reaction, user) => {
         }
     }
     //update the poll
-    store.update(reaction, user, "-");
+    store.update(reaction, user, "-", bot);
 });
 
 //placeholder
 function checkPolls(){
+    store.refresh(bot);
     return;
 }
 
@@ -165,3 +161,4 @@ function checkReminders(){
 //Log in the bot
 console.log("token is " + process.env.CLIENT_TOKEN)
 bot.login(token);
+
