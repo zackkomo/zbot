@@ -23,7 +23,7 @@ module.exports.run = async (bot, message, args) => {
     let title_g = messageArr.shift();
     
     let field = [];
-    let mes = "```"+ "\n" +"Poll by " + message.author.username + "\n" + title_g + "\n";
+    let mes = "```"+ "\n" +"Multiple vote poll by " + message.author.username + "\n" + title_g + "\n";
     
 
     for (let i = 0; i < messageArr.length; i++) {
