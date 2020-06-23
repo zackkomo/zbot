@@ -255,7 +255,14 @@ async function getUsers(arrayOfObjects, bot) {
                             if (arrayOfObjects.polls[i].poll.votes[step] != ids && arrayChanges.indexOf(i) < 0){
                                 arrayChanges.push(i);
                             }
-                            arrayOfObjects.polls[i].poll.votes[step] = ids;
+                            //handle single vs multiple poll
+                            if (arrayOfObjects.polls[i].poll.type === 0){
+                                arrayOfObjects.polls[i].poll.votes[step] = ids;
+                            }
+                            else {
+                                arrayOfObjects.polls[i].poll.votes[step] = ids;
+                            }
+                            
                         })
                     }
                 })

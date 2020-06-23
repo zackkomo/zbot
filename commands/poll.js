@@ -23,7 +23,7 @@ module.exports.run = async (bot, message, args) => {
     let title_g = messageArr.shift();
     
     let field = [];
-    let mes = "```"+ "\n" +"Poll by " + message.author.username + "\n" + title_g + "\n";
+    let mes = "```"+ "\n" +"Single vote poll by " + message.author.username + "\n" + title_g + "\n";
     
 
     for (let i = 0; i < messageArr.length; i++) {
@@ -49,5 +49,5 @@ module.exports.run = async (bot, message, args) => {
 
 module.exports.help = {
     name: "poll",
-    description: 'Description: Creates a poll. You can use the reactions on the bottom to vote. A percentage of the vote distribution will be printed on the poll itself. If you want to reaccess the poll, use the !pollCheck [poll number] that is given to you when the poll is created.\nUse: !poll "tittle(can have spaces)" "Option1" "Option2" ...'
+    description: 'Description: Creates a poll where each persons last reaction counts as their only vote. You can use the reactions on the bottom to vote. A percentage of the vote distribution will be printed on the poll itself. If you want to reaccess the poll, use the !pollCheck [poll number] that is given to you when the poll is created.\nUse: !poll "tittle(can have spaces)" "Option1" "Option2" ...'
 }
