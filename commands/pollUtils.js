@@ -4,7 +4,6 @@ const Discord = module.require("discord.js");
 const store = require(__dirname + "/pollUtils.js");
 const emotes = ["\u0031\u20E3", "\u0032\u20E3", "\u0033\u20E3", "\u0034\u20E3", "\u0035\u20E3", "\u0036\u20E3", "\u0037\u20E3", "\u0038\u20E3", "\u0039\u20E3"];
 
-
 exports.add = async (pollObj, num, message, op) => {
 
     let pollObject;
@@ -167,6 +166,7 @@ exports.update = async (reaction, user, action, bot) => {
 
         let arrayOfObjects = JSON.parse(data);
 
+        //check if the message is a poll and get its index
         let pollInd = -1;
         for (let step = 0; step < arrayOfObjects.polls.length; step++) {
             if (arrayOfObjects.polls[step] != null && reaction.message.id === arrayOfObjects.polls[step].id) {
@@ -175,13 +175,27 @@ exports.update = async (reaction, user, action, bot) => {
         }
 
         if (pollInd != -1) {
+            //make sure it is not an invalid reaction
             if (emotes.indexOf(reaction.emoji.name) != -1) {
                 let total = 0;
 
+                //go through all reactions
                 for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.votes.length; i++) {
+                    //find the index of the user in that reaction
                     let ind = arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username);
+                    //if it is a single vote poll and a person added a reaction remove their vote
                     if (ind != -1 && arrayOfObjects.polls[pollInd].poll.type === 0 && action === "+") {
                         arrayOfObjects.polls[pollInd].poll.votes[i].splice(ind, 1);
+                        const userReactions = reaction.message.reactions.cache.filter(reactionR => reactionR.users.cache.has(user.username));
+                        try {
+                            for (const reactionR of userReactions.values()) {
+                                if (reactionR.emoji.name != reaction.emoji.name){
+                                reaction.users.remove(userId);
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Failed to remove reactions.');
+                        }
                     }
                     if (i === emotes.indexOf(reaction.emoji.name) && action === "+") {
                         if (arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username) == -1) {
@@ -219,8 +233,8 @@ exports.refresh = async (bot) => {
             fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
                 if (err) throw err
                 console.log(`Done refreshing polls!`);
-                
-                for (let step = 0; step < arrayChanges.length; step ++){
+
+                for (let step = 0; step < arrayChanges.length; step++) {
                     updatePollMessage(arrayChanges[step], null, bot);
                 }
             });
@@ -230,20 +244,22 @@ exports.refresh = async (bot) => {
     })
 }
 
-
 async function getUsers(arrayOfObjects, bot) {
     let arrayChanges = [];
+    //for every poll
     for (i = 0; i < arrayOfObjects.polls.length; i++) {
+        let changedVotes_Users = []
+        let additionsSingle = [];
         if (arrayOfObjects.polls[i] != null) {
 
             await bot.channels.fetch(arrayOfObjects.polls[i].poll.channel).then(async channel => {
 
                 await channel.messages.fetch(arrayOfObjects.polls[i].id).then(async message => {
                     //For every emoji reaction of a poll
-
+                    console.log(message.reactions.cache.size)
                     for (let step = 0; step < message.reactions.cache.size; step++) {
-
                         let ids = [];
+
                         await message.reactions.cache.get(emotes[step]).users.fetch().then(async users => {
 
                             await users.array().forEach(async users => {
@@ -252,36 +268,67 @@ async function getUsers(arrayOfObjects, bot) {
                                 }
 
                             })
-                            if (arrayOfObjects.polls[i].poll.votes[step] != ids && arrayChanges.indexOf(i) < 0){
-                                arrayChanges.push(i);
+                            console.log("ids " + ids)
+                            if (arrayOfObjects.polls[i].poll.votes[step] != ids) {
+                                if (arrayChanges.indexOf(i) < 0) {
+                                    arrayChanges.push(i);
+                                }
+
+                                //stuff found during refresh not in poll data
+                                let newVotes = await ids.filter(x => !arrayOfObjects.polls[i].poll.votes[step].includes(x));
+                                console.log("new: " + newVotes)
+                                //For single vote
+                                changedVotes_Users = changedVotes_Users.concat(newVotes);
+                                additionsSingle.push(newVotes);
+
+
+
+
                             }
-                            //handle single vs multiple poll
-                            if (arrayOfObjects.polls[i].poll.type === 0){
-                                arrayOfObjects.polls[i].poll.votes[step] = ids;
-                            }
-                            else {
-                                arrayOfObjects.polls[i].poll.votes[step] = ids;
-                            }
-                            
                         })
                     }
-                })
+                    let num = message.reactions.cache.size
+                    await message.reactions.removeAll();
 
+                    for (let step = 0; step < num; step++) {
+
+                        message.react(emotes[step]);
+                    }
+
+                })
             })
+
+
+            console.log(changedVotes_Users);
+
+            //handle single vs multiple poll
+            if (arrayOfObjects.polls[i].poll.type === 0) {
+                let singlePollChanges = await changedVotes_Users.filter((x, i) => i === changedVotes_Users.indexOf(x))
+
+                for (let step = 0; step < additionsSingle.length; step++) {
+                    arrayOfObjects.polls[i].poll.votes[step] = await arrayOfObjects.polls[i].poll.votes[step].filter((el) => !singlePollChanges.includes(el));
+                    arrayOfObjects.polls[i].poll.votes[step] = arrayOfObjects.polls[i].poll.votes[step].concat(additionsSingle[step]);
+                }
+
+            }
+            else {
+
+                arrayOfObjects.polls[i].poll.votes[step] = ids;
+            }
+
+
         }
     }
     return arrayChanges;
 }
 
 async function updatePollMessage(pollInd, message, bot) {
-    
-
-    fs.readFile(pollList, 'utf-8',async function (err, data) {
+    fs.readFile(pollList, 'utf-8', async function (err, data) {
         if (err) throw err
 
-        
+
         let arrayOfObjects = JSON.parse(data);
-       
+
 
         if (message == null) {
             await bot.channels.fetch(arrayOfObjects.polls[pollInd].poll.channel).then(async channel => {
@@ -296,7 +343,7 @@ async function updatePollMessage(pollInd, message, bot) {
         //array to hold percentage message
         let votes = [];
         let total = 0;
-        for (let c = 0; c < arrayOfObjects.polls[pollInd].poll.votes.length; c++){
+        for (let c = 0; c < arrayOfObjects.polls[pollInd].poll.votes.length; c++) {
             total += arrayOfObjects.polls[pollInd].poll.votes[c].length;
         }
 
@@ -320,7 +367,7 @@ async function updatePollMessage(pollInd, message, bot) {
                 votes[i] += "] " + Math.trunc(arrayOfObjects.polls[pollInd].poll.votes[i].length / total * 100) + "%";
             }
         }
-       
+
 
         //recreate whole message
         let mes = "```" + "\n" + "Poll by " + arrayOfObjects.polls[pollInd].poll.author + "\n" + arrayOfObjects.polls[pollInd].poll.title + "\n";

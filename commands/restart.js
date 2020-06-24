@@ -8,8 +8,8 @@ module.exports.run = async (bot, message, args) => {
     
         // send channel a message that you're resetting bot [optional]
         message.channel.send('Restarting...')
-        .then(msg => client.destroy())
-        .then(() => client.login(process.env.CLIENT_TOKEN));
+        .then(msg => bot.destroy())
+        .then(() => bot.login(process.env.CLIENT_TOKEN));
     
 }
 
