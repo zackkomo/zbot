@@ -10,6 +10,12 @@ module.exports.run = async (bot, message, args) => {
         message.channel.send('Restarting...')
         .then(msg => bot.destroy())
         .then(() => bot.login(process.env.CLIENT_TOKEN));
+        bot.on("ready", () => {
+            console.log(`${bot.user.username} is ready!`);
+            console.log(`Source directory: ${__dirname}`);
+            checkReminders();
+            checkPolls();
+        });
     
 }
 

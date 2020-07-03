@@ -161,7 +161,7 @@ exports.check = async (num, message) => {
 
 exports.update = async (reaction, user, action, bot) => {
 
-    fs.readFile(pollList, 'utf-8', function (err, data) {
+    fs.readFile(pollList, 'utf-8', async function (err, data) {
         if (err) throw err
 
         let arrayOfObjects = JSON.parse(data);
@@ -186,22 +186,17 @@ exports.update = async (reaction, user, action, bot) => {
                     //if it is a single vote poll and a person added a reaction remove their vote
                     if (ind != -1 && arrayOfObjects.polls[pollInd].poll.type === 0 && action === "+") {
                         arrayOfObjects.polls[pollInd].poll.votes[i].splice(ind, 1);
-                        const userReactions = reaction.message.reactions.cache.filter(reactionR => reactionR.users.cache.has(user.username));
-                        try {
-                            for (const reactionR of userReactions.values()) {
-                                if (reactionR.emoji.name != reaction.emoji.name){
-                                reaction.users.remove(userId);
-                                }
-                            }
-                        } catch (error) {
-                            console.error('Failed to remove reactions.');
+                        if (reaction.message.reactions.cache.get(emotes[i]).users.cache.has(user.id)) {
+                            reaction.message.reactions.cache.get(emotes[i]).users.remove(user.id);
                         }
                     }
+                    //if a user votes for i and his name is not there, add him
                     if (i === emotes.indexOf(reaction.emoji.name) && action === "+") {
                         if (arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username) == -1) {
                             arrayOfObjects.polls[pollInd].poll.votes[i].push(user.username);
                         }
                     }
+                    //if a vote is removed, remove the vote
                     if (i === emotes.indexOf(reaction.emoji.name) && action === "-") {
                         if (arrayOfObjects.polls[pollInd].poll.votes[i].indexOf(user.username) != -1) {
                             arrayOfObjects.polls[pollInd].poll.votes[i].splice(ind, 1);
@@ -229,8 +224,9 @@ exports.refresh = async (bot) => {
 
         let arrayOfObjects = JSON.parse(data)
 
-        getUsers(arrayOfObjects, bot).then((arrayChanges) => {
-            fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
+        await getUsers(arrayOfObjects, bot).then(async (arrayChanges) => {
+            console.log("should wait for users")
+            await fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', async function (err) {
                 if (err) throw err
                 console.log(`Done refreshing polls!`);
 
@@ -239,12 +235,11 @@ exports.refresh = async (bot) => {
                 }
             });
         })
-
-
     })
 }
 
 async function getUsers(arrayOfObjects, bot) {
+    console.log("started users")
     let arrayChanges = [];
     //for every poll
     for (i = 0; i < arrayOfObjects.polls.length; i++) {
@@ -253,22 +248,22 @@ async function getUsers(arrayOfObjects, bot) {
         if (arrayOfObjects.polls[i] != null) {
 
             await bot.channels.fetch(arrayOfObjects.polls[i].poll.channel).then(async channel => {
-
+               
                 await channel.messages.fetch(arrayOfObjects.polls[i].id).then(async message => {
+                   
                     //For every emoji reaction of a poll
-                    console.log(message.reactions.cache.size)
                     for (let step = 0; step < message.reactions.cache.size; step++) {
+                      
                         let ids = [];
 
                         await message.reactions.cache.get(emotes[step]).users.fetch().then(async users => {
-
+                         
                             await users.array().forEach(async users => {
                                 if (users.username != bot.user.username) {
                                     ids.push(users.username)
                                 }
 
                             })
-                            console.log("ids " + ids)
                             if (arrayOfObjects.polls[i].poll.votes[step] != ids) {
                                 if (arrayChanges.indexOf(i) < 0) {
                                     arrayChanges.push(i);
@@ -276,49 +271,70 @@ async function getUsers(arrayOfObjects, bot) {
 
                                 //stuff found during refresh not in poll data
                                 let newVotes = await ids.filter(x => !arrayOfObjects.polls[i].poll.votes[step].includes(x));
-                                console.log("new: " + newVotes)
-                                //For single vote
+
+                                //array for each reaction new votes. If change has already been noted for a user, disregard it and keep the first one
+                                newVotes = await newVotes.filter((el) => changedVotes_Users.indexOf(el) < 0);
+                                additionsSingle.push(newVotes)
+
+                                //no duplicate array of users who changed their vote
                                 changedVotes_Users = changedVotes_Users.concat(newVotes);
-                                additionsSingle.push(newVotes);
-
-
-
-
                             }
                         })
+                      
                     }
-                    let num = message.reactions.cache.size
-                    await message.reactions.removeAll();
-
-                    for (let step = 0; step < num; step++) {
-
-                        message.react(emotes[step]);
+              
+                    //Remove invalid reactions sync for single vote
+                    if (arrayOfObjects.polls[i].poll.type == 0) {
+                        //for every vote
+                        for (let c = 0; c < arrayOfObjects.polls[i].poll.votes.length; c++) {
+                            console.log("in other for loop")
+                            //compare with each name of the changed users
+                            await changedVotes_Users.forEach(async userName => {
+                                console.log("in for each")
+                                
+                                await message.guild.members.fetch({query: userName, limit: 1}).then(async (member) => {
+                                        console.log("in members")
+                                        const userID = await member.first().id;
+                                        if (message.reactions.cache.get(emotes[c]).users.cache.has(userID) && userID != message.guild.member(bot.user).id && !additionsSingle[i].includes(userName)) {
+                                            console.log("in for " + c + " single " + additionsSingle[i].includes(userName))
+                                            message.reactions.cache.get(emotes[c]).users.remove(userID);
+                                        }
+                                        lock = true;
+                                    })
+                                    console.log("outside members")
+                            })
+                            console.log("outside for each")
+                        }
                     }
-
                 })
+             
             })
-
-
-            console.log(changedVotes_Users);
-
+       
             //handle single vs multiple poll
             if (arrayOfObjects.polls[i].poll.type === 0) {
-                let singlePollChanges = await changedVotes_Users.filter((x, i) => i === changedVotes_Users.indexOf(x))
-
+                //for single vote
+                //purge/remove voted of people who changed. Then push all different votes found for this reaction
                 for (let step = 0; step < additionsSingle.length; step++) {
-                    arrayOfObjects.polls[i].poll.votes[step] = await arrayOfObjects.polls[i].poll.votes[step].filter((el) => !singlePollChanges.includes(el));
+                    // for (let c=0; c<changedVotes_Users.length; c++){
+                    //     if (reaction.message.reactions.cache.get(emotes[i]).users.cache.has(user.id)){
+                    //         reaction.message.reactions.cache.get(emotes[i]).users.remove(user.id);
+                    //     }
+                    //     arrayOfObjects.polls[i].poll.votes[step]
+                    // }
+
+                    arrayOfObjects.polls[i].poll.votes[step] = await arrayOfObjects.polls[i].poll.votes[step].filter((el) => !changedVotes_Users.includes(el));
                     arrayOfObjects.polls[i].poll.votes[step] = arrayOfObjects.polls[i].poll.votes[step].concat(additionsSingle[step]);
                 }
 
             }
             else {
-
                 arrayOfObjects.polls[i].poll.votes[step] = ids;
             }
 
 
         }
     }
+    console.log("finished users")
     return arrayChanges;
 }
 
@@ -376,7 +392,7 @@ async function updatePollMessage(pollInd, message, bot) {
         }
         mes += "```";
 
-        //console.log(mes)
+       
         //save message in arrayofobjects
         arrayOfObjects.polls[pollInd].poll.mes = mes;
 
