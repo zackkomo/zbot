@@ -17,7 +17,7 @@ npm install --save-dev nodemon
 npm install dotenv --save
 ```
 
-Now you have what you need to run the bot. You will need to creat an environment file for the bot to read the token and prefix. To do this, go to your top directory, in zBot, and create a new file called ".env" . Use a text editor to add the following lines:
+Now you have what you need to run the bot. You will need to create an environment file for the bot to read the token and prefix. To do this, go to your top directory, in zBot, and create a new file called ".env" . Use a text editor to add the following lines:
 ```bash
 CLIENT_TOKEN=#BOT TOKEN GOES HERE#
 PREFIX=! #USE THIS TO CHANGE THE PREFIX FOR THE BOT COMMANDS#
