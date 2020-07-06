@@ -225,7 +225,7 @@ exports.refresh = async (bot) => {
         let arrayOfObjects = JSON.parse(data)
 
         await getUsers(arrayOfObjects, bot).then(async (arrayChanges) => {
-            console.log("should wait for users")
+  
             await fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', async function (err) {
                 if (err) throw err
                 console.log(`Done refreshing polls!`);
@@ -239,12 +239,14 @@ exports.refresh = async (bot) => {
 }
 
 async function getUsers(arrayOfObjects, bot) {
-    console.log("started users")
+
     let arrayChanges = [];
     //for every poll
     for (i = 0; i < arrayOfObjects.polls.length; i++) {
         let changedVotes_Users = []
         let additionsSingle = [];
+        let additionsMultiple = [];
+        let removedMultiple = [];
         if (arrayOfObjects.polls[i] != null) {
 
             await bot.channels.fetch(arrayOfObjects.polls[i].poll.channel).then(async channel => {
@@ -274,13 +276,18 @@ async function getUsers(arrayOfObjects, bot) {
                                 let newVotes = await ids.filter(x => !arrayOfObjects.polls[i].poll.votes[step].includes(x));
 
                                 //array for each reaction new votes. If change has already been noted for a user, disregard it and keep the first one
-                                newVotes = await newVotes.filter((el) => changedVotes_Users.indexOf(el) < 0);
-                                additionsSingle.push(newVotes)
+                                let tempnewVotes = await newVotes.filter((el) => changedVotes_Users.indexOf(el) < 0);
+                                additionsSingle.push(tempnewVotes)
 
                                 //no duplicate array of users who changed their vote
-                                changedVotes_Users = changedVotes_Users.concat(newVotes);
+                                changedVotes_Users = changedVotes_Users.concat(tempnewVotes);
 
-                                //for double vote poll
+                                //for multiple vote poll
+                                //use single poll for additions
+                                additionsMultiple.push(newVotes);
+                                //find removals
+                                let removedVotes = await arrayOfObjects.polls[i].poll.votes[step].filter(x => !ids.includes(x));
+                                removedMultiple.push(removedVotes);
                             }
                         })
 
@@ -289,13 +296,11 @@ async function getUsers(arrayOfObjects, bot) {
                     if (arrayOfObjects.polls[i].poll.type == 0) {
                         //for every vote
                         for (let c = 0; c < arrayOfObjects.polls[i].poll.votes.length; c++) {
-                            console.log("in other for loop")
                             //compare with each name of the changed users
                             await changedVotes_Users.forEach(async userName => {
                                 let user = await bot.users.cache.find(user => user.username === userName)
                                 let userID = user.id;
                                 if (message.reactions.cache.get(emotes[c]).users.cache.has(userID) && userID != message.guild.member(bot.user).id && !additionsSingle[c].includes(userName)) {
-                                    console.log("in for " + c + " single " + additionsSingle[i].includes(userName))
                                     message.reactions.cache.get(emotes[c]).users.remove(userID);
                                 }
                             })
@@ -316,13 +321,15 @@ async function getUsers(arrayOfObjects, bot) {
 
             }
             else {
-                arrayOfObjects.polls[i].poll.votes[step] = ids;
+                for (let step = 0; step < additionsMultiple.length; step++) {
+                    // console.log(arrayOfObjects.polls[i].poll.votes[step]);
+                    // console.log(arrayOfObjects.polls[i].poll.votes[step]);
+                    arrayOfObjects.polls[i].poll.votes[step] = await arrayOfObjects.polls[i].poll.votes[step].filter((el) => !removedMultiple[step].includes(el));
+                    arrayOfObjects.polls[i].poll.votes[step] = arrayOfObjects.polls[i].poll.votes[step].concat(additionsMultiple[step]);
+                }
             }
-
-
         }
     }
-    console.log("finished users")
     return arrayChanges;
 }
 
@@ -388,7 +395,7 @@ async function updatePollMessage(pollInd, message, bot) {
 
         fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
             if (err) throw err
-            console.log(`Updated Poll in channel`);
+            console.log(`Updated Poll ${pollInd} in channel`);
         });
     })
 }
