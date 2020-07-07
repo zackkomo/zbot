@@ -8,12 +8,15 @@ module.exports.run = async (bot, message, args) => {
 
     //more than 1 arguement
     if (args.length != 0) {
+        //get the filenames in "commands" folder
         fs.readdir(__dirname, (err, files) => {
             if (err) console.error(err);
 
             let jsfiles = [];
+
+            //ignore the jsons and remove the .js from the valid ones
             let Commandfiles = files.filter(f => {
-                if (f.endsWith("js") && ! f.includes("Utils")){
+                if (f.endsWith("js") && !f.includes("Utils")) {
                     f = f.split(".");
                     jsfiles.push(f[0]);
                 }
@@ -21,16 +24,22 @@ module.exports.run = async (bot, message, args) => {
 
             let cmdnames = "```Available commands: \n";
 
+            //for each valid command
             jsfiles.forEach((f, i) => {
+                //set path to js
                 let props = require(`./${f}`);
+                //find the command the user wanted through the name property in the help module
                 if (props.help.name === args[0]) {
+                    //send the description to the user
                     message.author.send("```" + "!" + args[0] + "\n" + props.help.description + "```");
                 }
+                //compile list of available commands
                 cmdnames += props.help.name + "\n";
             })
             cmdnames += "```";
-            if (args[0] === "commands"){
-            message.author.send(cmdnames);
+            //if the arguement was commands, send the list of commands
+            if (args[0] === "commands") {
+                message.author.send(cmdnames);
             }
         })
     }
