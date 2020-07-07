@@ -26,6 +26,20 @@ module.exports.run = async (bot, message, args) => {
     let title = messageArr.shift();
 
 
+    
+    let catID;
+    let tempCategory = await server.channels.cache.some(c => {
+        if (c.name === "Personal Text Channels" && c.type == "category"){
+         catID =  c.id;
+        }
+        return c.name === "Personal Text Channels" && c.type == "category";
+    });
+    if (!tempCategory){
+        await server.channels.create("Personal Text Channels", { type: 'category' }).then(async c =>{
+            catID = c.id;
+        });
+    }
+    
 
     let permissions = [{
         id: message.guild.id,
@@ -56,11 +70,14 @@ module.exports.run = async (bot, message, args) => {
 
     }
     let options = {
-        type: "text",
+        type: "type",
         permissionOverwrites: permissions
     }
 
-    let newChannel = server.channels.create(title, options).catch(err => {
+    let newChannel = server.channels.create(title, options).then(channel => {
+        channel.setParent(catID);
+    })
+    .catch(err => {
         console.log(err);
         message.author.send(err.message);
         return message.delete();

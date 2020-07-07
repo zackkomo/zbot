@@ -2,7 +2,7 @@ const Discord = module.require("discord.js");
 const store = require(__dirname + "/pollUtils.js");
 
 module.exports.run = async (bot, message, args) => {
-    store.refresh(message);   
+    store.refresh(bot);   
 }
 
 module.exports.help = {
