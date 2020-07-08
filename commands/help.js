@@ -47,5 +47,7 @@ module.exports.run = async (bot, message, args) => {
 
 module.exports.help = {
     name: "help",
-    description: "Description: You can use this to get a list of all commands (use 1) or a description and use of a specific command. All messages will be through a direct message.\nUse 1: !help commands\nUse 2: !helo [command name]"
+    description: "Description: You can use this to get a list of all commands (use 1)"
+    + " or a description and use of a specific command. All messages will be through a"
+    + " direct message.\nUse 1: !help commands\nUse 2: !help [command name]"
 }

@@ -65,5 +65,5 @@ module.exports.help = {
     + "You can use the reactions on the bottom to vote. A percentage of the vote distribution"
     + " will be printed on the poll itself. If you want to reaccess the poll, use the !pollCheck"
     + " [poll number] that is given to you when the poll is created."
-    + '\nUse: !poll "tittle(can have spaces)" "Option1" "Option2" ...'
+    + '\nUse: !poll "title(can have spaces)" "Option1" "Option2" ...'
 }
