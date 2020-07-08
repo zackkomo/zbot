@@ -30,7 +30,8 @@ npm start
 ```
 This will automatically run nodemon so each time you save a local change not in the ignore file, it will restart.
 
-If you add files in the commands folder that are commands, simply just name it "commandname".js and it will automatically be loaded and dealt with, no other action is required.
+If you add files in the commands folder that are commands, simply just name it "commandname".js and it will automatically be added to the help command, make sure the module.exports.help "name" field is the exact command you want users to input, minus the prefix.
+
 If you add a file for storage (for example to store poll data etc) make sure to add this to the nodemon.json under "ignore." It will mean when changes are made in that file the bot will not restart, as well as when the commands are loaded these .json files will be ignored
 
 ## Contributing
