@@ -1,5 +1,6 @@
 const Discord = module.require("discord.js")
 const botConfigPath = "./config.json";
+const store = require(__dirname + "/pollUtils.js");
 const fs = require("fs");
 
 module.exports.run = async (bot, message, args) => {
@@ -11,14 +12,19 @@ module.exports.run = async (bot, message, args) => {
 
         config.botEnable = !config.botEnable;
         let en = config.botEnable;
+        if (en){
+            store.refresh(bot);
+        }
         fs.writeFile(botConfigPath, JSON.stringify(config), 'utf-8', function (err) {
             if (err) throw err
-            console.log(`Bot enabled ${en}`);
+            
             if (en){
                 message.channel.send("Bot enabled");
+                console.log("Bot enabled");
             }
             else{
                 message.channel.send("Bot disabled");
+                console.log("Bot disabled");
             }
         });
     })
