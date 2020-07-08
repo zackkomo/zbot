@@ -35,4 +35,4 @@ If you add files in the commands folder that are commands, simply just name it "
 If you add a file for storage (for example to store poll data etc) make sure to add this to the nodemon.json under "ignore." It will mean when changes are made in that file the bot will not restart, as well as when the commands are loaded these .json files will be ignored
 
 ## Contributing
-Pull requests are welcome. For minor changes, work on master. For major changes create a new branch.
+Pull requests are welcome. For minor changes, work on master. For major changes create a new branch. 
