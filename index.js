@@ -1,5 +1,6 @@
 
 const ignoreList = require("./nodemon.json");
+const botConfigPath = "./config.json";
 require('dotenv').config()
 const token = process.env.CLIENT_TOKEN;
 const prefix = process.env.PREFIX;
@@ -10,6 +11,60 @@ const reminderList = "./commands/reminderList.json";
 const store = require("./commands/pollUtils.js");
 const emotes = ["\u0031\u20E3", "\u0032\u20E3", "\u0033\u20E3", "\u0034\u20E3", "\u0035\u20E3", "\u0036\u20E3", "\u0037\u20E3", "\u0038\u20E3", "\u0039\u20E3"];
 
+//helper methods
+//on startup refresh polls
+function checkPolls() {
+    store.refresh(bot);
+    return;
+}
+
+//WIP for reminders, semi works
+function checkReminders() {
+    fs.readFile(reminderList, 'utf-8', function (err, data) {
+        if (err) throw err
+        let arrayOfObjects = JSON.parse(data)
+
+        let reminderNum = -1;
+        let badRem = [];
+        for (let i = 0; i < arrayOfObjects.reminders.length; i++) {
+            let now = Date.now();
+            if (arrayOfObjects.reminders[i].start + arrayOfObjects.reminders[i].length < now) {
+                let channel = bot.channels.cache.get(arrayOfObjects.reminders[i].channel);
+                channel.send("<@" + arrayOfObjects.reminders[i].author + ">" + " I was offline and didn't remind you: " + arrayOfObjects.reminders[i].reminderMes);
+            }
+            badRem.push(i);
+        }
+
+        for (let step = 0; step < badRem.length; step++) {
+            console.log("here")
+            arrayOfObjects.reminders.splice(step);
+        }
+
+        if (badRem.length > 0) {
+            fs.writeFile(reminderList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
+                if (err) throw err
+                console.log(`Done removing bad reminders!`);
+            });
+        }
+    })
+}
+
+//check if commands are enabled
+async function commandsEnabled() {
+    let en = null;
+    let rawContent = fs.readFileSync(botConfigPath);
+    let config = JSON.parse(rawContent);
+    return config.commandEnable;
+}
+
+//check if bot is enabled
+async function botEnabled() {
+    let en = null;
+    let rawContent = fs.readFileSync(botConfigPath);
+    let config = JSON.parse(rawContent);
+    return config.botEnable;
+}
+
 //create bot object
 const bot = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 bot.commands = new Discord.Collection();
@@ -17,11 +72,11 @@ bot.commands = new Discord.Collection();
 //load all the files in commands folder
 fs.readdir("./commands/", (err, files) => {
     if (err) console.error(err);
-    
+
     //if pollList for saving polls doesn't exist, create it
-    if (!files.includes("pollList.json")){
+    if (!files.includes("pollList.json")) {
         let arrayOfObjects = {
-            "polls" : [],
+            "polls": [],
             "pollCount": -1
         }
         fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
@@ -31,16 +86,16 @@ fs.readdir("./commands/", (err, files) => {
     }
 
     //if reminderList for saving reminders doesn't exist, create it
-    if (!files.includes("reminderList.json")){
+    if (!files.includes("reminderList.json")) {
         let arrayOfObjects = {
-            "reminders" : [],
+            "reminders": [],
         }
         fs.writeFile(reminderList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
             if (err) throw err
             console.log(`Creating ReminderList.json`);
         });
     }
-    
+
     //filter files that are js files to get the name of all commands
     let jsfiles = files.filter(f => f.split(".").pop() === "js");
     if (jsfiles.length <= 0) {
@@ -61,7 +116,7 @@ fs.readdir("./commands/", (err, files) => {
     console.log(`Loaded ${numCom} commands.`);
 })
 
-//when bot starts
+//on startup
 bot.on("ready", () => {
     console.log(`${bot.user.username} is ready!`);
     console.log(`Source directory: ${__dirname}`);
@@ -71,97 +126,80 @@ bot.on("ready", () => {
 
 //when a message is sent
 bot.on("message", async message => {
-    //check for bot message and disregard
-    if (message.author.bot) return;
+    let botEn = await botEnabled();
+    botEn = botEn || message.content === "!toggleBot";
 
-    if (message.content === "testGit"){
-        return message.channel.send("CI/CD is set up");
+    if (botEn) {
+        //check for bot message and disregard
+        if (message.author.bot) return;
+
+        //Check if commands are enabled
+        let comEnabled = await commandsEnabled();
+        comEnabled = comEnabled || message.content === "!toggleCommands" || message.content === "!toggleBot";
+
+        if (comEnabled && botEn) {
+
+            //Check if message is a command and parse it to the command file(starts with PREFIX)
+            let messageArr = message.content.split(" ");
+            let command = messageArr[0]; //save first token
+            let args = messageArr.slice(1); //remove first token, the rest are args
+            if (!command.startsWith(prefix)) return;
+
+            //get command name and if it is valid run it
+            let cmd = bot.commands.get(command.slice(prefix.length));
+            if (cmd) {
+                cmd.run(bot, message, args);
+            }
+        }
+        else {
+            message.channel.send("<@" + message.author.id + ">" + " Commands are disabled.");
+        }
     }
-
-
-    //Check if message is a command and parse it to the command file(starts with PREFIX)
-    let messageArr = message.content.split(" ");
-    let command = messageArr[0]; //save first token
-    let args = messageArr.slice(1); //remove first token, the rest are args
-    if (!command.startsWith(prefix)) return;
-
-    //get command name and if it is valid run it
-    let cmd = bot.commands.get(command.slice(prefix.length));
-    if (cmd) cmd.run(bot, message, args);
 });
 
 //when someone adds a reaction
 bot.on('messageReactionAdd', async (reaction, user) => {
-    if (user.username === bot.user.username) return;  
-    // When we receive a reaction we check if the reaction is partial or not
-    if (reaction.partial) {
-        // If the message this reaction belongs to was removed the fetching might result in an API error, which we need to handle
-        try {
-            await reaction.fetch();
-        } catch (error) {
-            console.log('Something went wrong when fetching the message: ', error);
-            // Return as `reaction.message.author` may be undefined/null
-            return;
+    let botEn = await botEnabled();
+
+    if (botEn) {
+        if (user.username === bot.user.username) return;
+        // When we receive a reaction we check if the reaction is partial or not
+        if (reaction.partial) {
+            // If the message this reaction belongs to was removed the fetching might result in an API error, which we need to handle
+            try {
+                await reaction.fetch();
+            } catch (error) {
+                console.log('Something went wrong when fetching the message: ', error);
+                // Return as `reaction.message.author` may be undefined/null
+                return;
+            }
         }
+        //update the poll
+        store.update(reaction, user, "+", bot);
     }
-    //update the poll
-    store.update(reaction, user, "+", bot);
 });
 
 //when someone removes a reaction
 bot.on('messageReactionRemove', async (reaction, user) => {
-    if (user.username === bot.user.username) return;
-    // When we receive a reaction we check if the reaction is partial or not
-    if (reaction.partial) {
-        // If the message this reaction belongs to was removed the fetching might result in an API error, which we need to handle
-        try {
-            await reaction.fetch();
-        } catch (error) {
-            console.log('Something went wrong when fetching the message: ', error);
-            // Return as `reaction.message.author` may be undefined/null
-            return;
-        }
-    }
-    //update the poll
-    store.update(reaction, user, "-", bot);
-});
+    let botEn = await botEnabled();
 
-//placeholder
-function checkPolls(){
-    store.refresh(bot);
-    return;
-}
-
-//placeholder
-function checkReminders(){
-    fs.readFile(reminderList, 'utf-8', function (err, data) {
-        if (err) throw err
-        let arrayOfObjects = JSON.parse(data)
-        
-        let reminderNum = -1;
-        let badRem = [];
-        for (let i = 0; i < arrayOfObjects.reminders.length; i++){
-            let now = Date.now();
-            if (arrayOfObjects.reminders[i].start + arrayOfObjects.reminders[i].length < now){
-                let channel = bot.channels.cache.get(arrayOfObjects.reminders[i].channel);
-                channel.send("<@" + arrayOfObjects.reminders[i].author + ">" + " I was offline and didn't remind you: " + arrayOfObjects.reminders[i].reminderMes );
+    if (botEn) {
+        if (user.username === bot.user.username) return;
+        // When we receive a reaction we check if the reaction is partial or not
+        if (reaction.partial) {
+            // If the message this reaction belongs to was removed the fetching might result in an API error, which we need to handle
+            try {
+                await reaction.fetch();
+            } catch (error) {
+                console.log('Something went wrong when fetching the message: ', error);
+                // Return as `reaction.message.author` may be undefined/null
+                return;
             }
-            badRem.push(i);
         }
-
-        for (let step = 0; step<badRem.length; step ++){
-            console.log("here")
-            arrayOfObjects.reminders.splice(step);
-        }
-        
-        if (badRem.length > 0){
-        fs.writeFile(reminderList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
-            if (err) throw err
-            console.log(`Done removing bad reminders!`);
-        });
+        //update the poll
+        store.update(reaction, user, "-", bot);
     }
-    })
-}
+});
 
 //Log in the bot
 console.log("token is " + process.env.CLIENT_TOKEN)
