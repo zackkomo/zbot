@@ -10,6 +10,8 @@ const pollList = "./commands/pollList.json";
 const reminderList = "./commands/reminderList.json";
 const store = require("./commands/pollUtils.js");
 const emotes = ["\u0031\u20E3", "\u0032\u20E3", "\u0033\u20E3", "\u0034\u20E3", "\u0035\u20E3", "\u0036\u20E3", "\u0037\u20E3", "\u0038\u20E3", "\u0039\u20E3"];
+const minimumPermissions = ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_MESSAGES", "EMBED_LINKS", "ATTACH_FILES", "READ_MESSAGE_HISTORY"];
+const botchannelName = "bot test";
 
 //helper methods
 //on startup refresh polls
@@ -65,10 +67,84 @@ async function botEnabled() {
     return config.botEnable;
 }
 
+//make sure bot test channel exists
+async function createBotTest(bot) {
+    
+    let guildArr = await bot.guilds.cache.array();
+
+    for (let i = 0; i < guildArr.length; i++) {
+
+        //Define the server, user and title
+        let server = guildArr[i];
+        let title = botchannelName;
+
+        let exists = await server.channels.cache.some(c => {
+            return (c.name.replace("-", " ") || c.name) === botchannelName && c.type == "text";
+        });
+
+        if (!exists) {
+
+            //Deal with putting channel in a category
+            let catID;
+            //if the "Personal Text Channels" already exists get the id
+            let tempCategory = server.channels.cache.some(c => {
+                if (c.name === "Personal Text Channels" && c.type == "category") {
+                    catID = c.id;
+                }
+                return c.name === "Personal Text Channels" && c.type == "category";
+            });
+            //if it doesn't exist, create it and get the id
+            if (!tempCategory) {
+                server.channels.create("Personal Text Channels", { type: 'category' }).then(async c => {
+                    catID = c.id;
+                });
+            }
+
+            //set up default permissions
+            let permissions = [
+                //clear everyone from the channel
+                {
+                    id: guildArr[i].id,
+                    deny: ['VIEW_CHANNEL'],
+                },
+                //add the bot
+                {
+                    id: guildArr[i].member(bot.user).id,
+                    allow: minimumPermissions,
+                },
+                //add the command user
+                {
+                    id: guildArr[i].ownerID,
+                    allow: minimumPermissions,
+                }
+            ];
+
+            //set the channel options
+            let options = {
+                type: "type",
+                permissionOverwrites: permissions
+            }
+
+            //create the channel
+            let newChannel = server.channels.create(title, options).then(channel => {
+                //put the channel in the category
+                channel.setParent(catID);
+                channel.send("In this channel everything will be visible if checked. If you want more people to have access, you will need to add them");
+            })
+                .catch(err => {
+                    console.log(err);
+                    message.author.send(err.message);
+                    return message.delete();
+                })
+        }
+    }
+}
+
 //create bot object
 const bot = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 bot.commands = new Discord.Collection();
 
+//on launch
 //load all the files in commands folder
 fs.readdir("./commands/", (err, files) => {
     if (err) console.error(err);
@@ -116,12 +192,13 @@ fs.readdir("./commands/", (err, files) => {
     console.log(`Loaded ${numCom} commands.`);
 })
 
-//on startup
+//on bot startup
 bot.on("ready", () => {
     console.log(`${bot.user.username} is ready!`);
     console.log(`Source directory: ${__dirname}`);
     checkReminders();
     checkPolls();
+    createBotTest(bot);
 });
 
 //when a message is sent
