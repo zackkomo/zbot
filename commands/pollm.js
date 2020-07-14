@@ -23,7 +23,7 @@ module.exports.run = async (bot, message, args) => {
     //stops if there is not enough arguements, at least a title and an option
     if (messageArr.length <= 1) return message.channel.send("There is no title or no options. You need at least 2 arguements.");
     //stops if there are too many arguements, a max of 10
-    if (messageArr.length > 11) return message.channel.send("There are too many options! The max is 10.");
+    if (messageArr.length > 20) return message.channel.send("There are too many options! The max is 10.");
 
     //Define the title
     let title_g = messageArr.shift();
