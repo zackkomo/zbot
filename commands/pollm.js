@@ -18,11 +18,15 @@ module.exports.run = async (bot, message, args) => {
     }
     
     //clears out all spaces and blanks created by slicing
-    messageArr = messageArr.filter(x => !(x === " " | x === ""));
+    messageArr = messageArr.filter((x) =>{
+      return x.replace(/\s/g, '')
+    });
     
     //stops if there is not enough arguements, at least a title and an option
     if (messageArr.length <= 1) return message.channel.send("There is no title or no options. You need at least 2 arguements.");
     //stops if there are too many arguements, a max of 10
+    console.log(messageArr);
+
     if (messageArr.length > 11) return message.channel.send("There are too many options! The max is 10.");
 
     //Define the title
