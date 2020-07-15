@@ -67,6 +67,14 @@ async function botEnabled() {
     return config.botEnable;
 }
 
+//check if bot is enabled
+async function debugEnabled() {
+    let en = null;
+    let rawContent = fs.readFileSync(botConfigPath);
+    let config = JSON.parse(rawContent);
+    return config.debug;
+}
+
 //make sure bot test channel exists
 async function createBotTest(bot) {
     
@@ -138,6 +146,21 @@ async function createBotTest(bot) {
                 })
         }
     }
+}
+
+//get bottest channel
+async function getBotTestID(message){
+    let server = message.guild
+    //Deal with putting channel in a category
+    let catID;
+    //if the "Personal Text Channels" already exists get the id
+    let tempCategory = await server.channels.cache.some(c => {
+        if ((c.name.replace("-", " ")|| c.name) === botchannelName && c.type == "text") {
+            catID = c.id;
+        }
+        return (c.name.replace("-", " ")|| c.name) === botchannelName && c.type == "text";
+    });
+    return catID;
 }
 
 //create bot object
@@ -225,7 +248,16 @@ bot.on("message", async message => {
             //get command name and if it is valid run it
             let cmd = bot.commands.get(command.slice(prefix.length));
             if (cmd) {
+                try{
                 cmd.run(bot, message, args);
+                }
+                catch (e){
+                    let id = await getBotTestID(message)
+                    bot.channels.fetch(id).then( c =>{
+                        c.send(e)
+                    })
+                    console.log(e);
+                }
             }
         }
         else {
