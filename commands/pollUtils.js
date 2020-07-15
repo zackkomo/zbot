@@ -3,6 +3,7 @@ const pollList = "./commands/pollList.json";
 const Discord = module.require("discord.js");
 const store = require(__dirname + "/pollUtils.js");
 const emotes = ["\u0031\u20E3", "\u0032\u20E3", "\u0033\u20E3", "\u0034\u20E3", "\u0035\u20E3", "\u0036\u20E3", "\u0037\u20E3", "\u0038\u20E3", "\u0039\u20E3"];
+const botchannelName = "bot test";
 
 exports.add = async (pollObj, num, message, op) => {
 
@@ -112,11 +113,12 @@ exports.check = async (num, message) => {
 
 
         let arrayOfObjects = JSON.parse(data)
+        //case where all poll titles are printed for that channel
         if (num == null) {
             let mesCheck = "```Available polls \n# | name \n---------\n";
             for (let i = 0; i < arrayOfObjects.polls.length; i++) {
                 if (arrayOfObjects.polls[i] != null) {
-                    if (arrayOfObjects.polls[i].poll.channel === message.channel.id || message.channel.id != 557682790271942688) {
+                    if (arrayOfObjects.polls[i].poll.channel === message.channel.id || (message.channel.name.replace("-", " ") || message.channel.name) == botchannelName) {
                         mesCheck += i + " |" + arrayOfObjects.polls[i].poll.title + "\n";
                     }
 

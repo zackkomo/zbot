@@ -1,5 +1,6 @@
 const Discord = module.require("discord.js");
 const fs = require("fs");
+const minimumPermissions = ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_MESSAGES", "EMBED_LINKS", "ATTACH_FILES", "READ_MESSAGE_HISTORY"];
 
 
 module.exports.run = async (bot, message, args) => {
@@ -60,12 +61,12 @@ module.exports.run = async (bot, message, args) => {
     //add the bot
     {
         id: message.guild.member(bot.user).id,
-        allow: ['VIEW_CHANNEL'],
+        allow: minimumPermissions,
     },
     //add the command user
     {
         id: message.author.id,
-        allow: ['VIEW_CHANNEL'],
+        allow: minimumPermissions,
     }
     ];
 
