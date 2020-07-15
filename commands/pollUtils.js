@@ -350,14 +350,15 @@ async function updatePollMessage(pollInd, message, bot) {
             })
 
         }
-
         //array to hold percentage message
         let votes = [];
         let total = 0;
+        let newPeople = [];
         for (let c = 0; c < arrayOfObjects.polls[pollInd].poll.votes.length; c++) {
             total += arrayOfObjects.polls[pollInd].poll.votes[c].length;
+            let temp = await arrayOfObjects.polls[pollInd].poll.votes[c].filter(async voter => !newPeople.includes(voter));
+            newPeople = newPeople.concat(temp);
         }
-
         for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.votes.length; i++) {
             //leave blank if no votes
             if (total == 0) {
@@ -378,10 +379,11 @@ async function updatePollMessage(pollInd, message, bot) {
                 votes[i] += "] " + Math.trunc(arrayOfObjects.polls[pollInd].poll.votes[i].length / total * 100) + "%";
             }
         }
-
-
+        //
+        let noVotePeople = message.channel.members.size - newPeople.length - 1;
+        
         //recreate whole message
-        let mes = "```" + "\n" + "Poll by " + arrayOfObjects.polls[pollInd].poll.author + "\n" + arrayOfObjects.polls[pollInd].poll.title + "\n";
+        let mes = "```" + "\n" + "Poll by " + arrayOfObjects.polls[pollInd].poll.author + "\n" + arrayOfObjects.polls[pollInd].poll.title + ' ( ' + noVotePeople + " people haven't voted yet )"  + "\n";
         for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.options.length; i++) {
             mes += arrayOfObjects.polls[pollInd].poll.options[i] + " " + votes[i] + "\n" + "---------" + "\n";
         }
