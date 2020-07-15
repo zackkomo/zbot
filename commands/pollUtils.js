@@ -358,8 +358,11 @@ async function updatePollMessage(pollInd, message, bot) {
         let newPeople = [];
         for (let c = 0; c < arrayOfObjects.polls[pollInd].poll.votes.length; c++) {
             total += arrayOfObjects.polls[pollInd].poll.votes[c].length;
-            let temp = await arrayOfObjects.polls[pollInd].poll.votes[c].filter(async voter => !newPeople.includes(voter));
-            newPeople = newPeople.concat(temp);
+            for (let v=0; v<arrayOfObjects.polls[pollInd].poll.votes[c].length;v++){
+                if (!newPeople.includes(arrayOfObjects.polls[pollInd].poll.votes[c][v])){
+                    newPeople.push(arrayOfObjects.polls[pollInd].poll.votes[c][v]);
+                }
+            }
         }
         for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.votes.length; i++) {
             //leave blank if no votes
