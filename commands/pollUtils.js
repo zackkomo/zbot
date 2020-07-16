@@ -210,11 +210,7 @@ exports.update = async (reaction, user, action, bot) => {
                 let temp = JSON.stringify(arrayOfObjects);
                 fs.writeFileSync(pollList, temp);
                 updatePollMessage(pollInd, reaction.message, bot);
-                // fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
-                //     if (err) throw err
-                //     console.log(`Done updating poll ${pollInd}!`);
-                //     updatePollMessage(pollInd, reaction.message, bot);
-                // });
+
             }
             else {
                 reaction.remove(user);
@@ -231,7 +227,7 @@ exports.refresh = async (bot) => {
         let arrayOfObjects = JSON.parse(data)
 
         await getUsers(arrayOfObjects, bot).then(async (arrayChanges) => {
-  
+
             await fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', async function (err) {
                 if (err) throw err
                 console.log(`Done refreshing polls!`);
@@ -328,8 +324,6 @@ async function getUsers(arrayOfObjects, bot) {
             }
             else {
                 for (let step = 0; step < additionsMultiple.length; step++) {
-                    // console.log(arrayOfObjects.polls[i].poll.votes[step]);
-                    // console.log(arrayOfObjects.polls[i].poll.votes[step]);
                     arrayOfObjects.polls[i].poll.votes[step] = await arrayOfObjects.polls[i].poll.votes[step].filter((el) => !removedMultiple[step].includes(el));
                     arrayOfObjects.polls[i].poll.votes[step] = arrayOfObjects.polls[i].poll.votes[step].concat(additionsMultiple[step]);
                 }
@@ -410,7 +404,7 @@ async function updatePollMessage(pollInd, message, bot) {
         }
 
         //recreate whole message
-        let mes = "```" + "\n" + "Poll by " + arrayOfObjects.polls[pollInd].poll.author + " --- " + numVoteMes + "\n" + arrayOfObjects.polls[pollInd].poll.title  + "\n";
+        let mes = "```" + "\n" + "Poll by " + arrayOfObjects.polls[pollInd].poll.author + " --- " + numVoteMes + "\n" + arrayOfObjects.polls[pollInd].poll.title + "\n";
         for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.options.length; i++) {
             mes += arrayOfObjects.polls[pollInd].poll.options[i] + " " + votes[i] + "\n" + "---------" + "\n";
         }
@@ -425,15 +419,11 @@ async function updatePollMessage(pollInd, message, bot) {
 
         let temp = JSON.stringify(arrayOfObjects);
 
-        try{
-                fs.writeFileSync(pollList, temp);
+        try {
+            fs.writeFileSync(pollList, temp);
         }
-        catch (er){
+        catch (er) {
             console.log(`Updated Poll ${pollInd} in channel`);
-        }    
-        // fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
-        //     if (err) throw err
-        //     console.log(`Updated Poll ${pollInd} in channel`);
-        // });
+        }
     })
 }
