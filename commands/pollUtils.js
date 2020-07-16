@@ -54,25 +54,12 @@ exports.add = async (pollObj, num, message, op) => {
 }
 
 exports.remove = async (num, message) => {
-    //get the number of arguements between the "
-    let count = (message.content.match(/"/g) || []).length;
-    //make sure if there are special characters to make them part of the string
-    let messageArr = (message.content.replace("\n", "\\n").replace("\r", "\\r")).split(" ");
-    //remove first token, the rest are args
-    messageArr = messageArr.slice(1);
-
-    //makes sure there is at least a title and that the quotations dont missmatch
-    if (messageArr.length != 1) {
-        return message.channel.send('You need to provide a poll number. If you don\'t know the poll numbrt, use "!pollCheck"');
-    }
 
     fs.readFile(pollList, 'utf-8', function (err, data) {
         if (err) throw err
 
 
         let arrayOfObjects = JSON.parse(data)
-
-
         if (arrayOfObjects.polls.length <= num || num < 0) {
             return message.channel.send("There is no poll with that poll number");
         }
@@ -219,12 +206,15 @@ exports.update = async (reaction, user, action, bot) => {
                     }
                     total += arrayOfObjects.polls[pollInd].poll.votes[i].length;
                 }
-                fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
-                    if (err) throw err
-                    console.log(`Done updating poll ${pollInd}!`);
-                }).then( () =>{
-                    updatePollMessage(pollInd, reaction.message, bot);
-                })
+
+                let temp = JSON.stringify(arrayOfObjects);
+                fs.writeFileSync(pollList, temp);
+                updatePollMessage(pollInd, reaction.message, bot);
+                // fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
+                //     if (err) throw err
+                //     console.log(`Done updating poll ${pollInd}!`);
+                //     updatePollMessage(pollInd, reaction.message, bot);
+                // });
             }
             else {
                 reaction.remove(user);
@@ -241,7 +231,7 @@ exports.refresh = async (bot) => {
         let arrayOfObjects = JSON.parse(data)
 
         await getUsers(arrayOfObjects, bot).then(async (arrayChanges) => {
-
+  
             await fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', async function (err) {
                 if (err) throw err
                 console.log(`Done refreshing polls!`);
@@ -353,9 +343,10 @@ async function updatePollMessage(pollInd, message, bot) {
     fs.readFile(pollList, 'utf-8', async function (err, data) {
         if (err) throw err
 
+
         let arrayOfObjects = JSON.parse(data);
 
-        //if its from a command where the message obj doesn't get parsed, get the message
+
         if (message == null) {
             await bot.channels.fetch(arrayOfObjects.polls[pollInd].poll.channel).then(async channel => {
 
@@ -365,38 +356,18 @@ async function updatePollMessage(pollInd, message, bot) {
             })
 
         }
-        //array to hold percentages message, and total votes
-        let votes = []; //array of votes for each option
-        let total = 0; //total votes on poll
-        let newPeople = []; //unique people who voted
-        let numOfBots = 0; //number of bots in channel
-        let numVoteMes = "Votes in: [";
+        //array to hold percentage message
+        let votes = [];
+        let total = 0;
+        let newPeople = [];
         for (let c = 0; c < arrayOfObjects.polls[pollInd].poll.votes.length; c++) {
-            //store total
             total += arrayOfObjects.polls[pollInd].poll.votes[c].length;
-            //get unique people from each vote
-            for (let v = 0; v < arrayOfObjects.polls[pollInd].poll.votes[c].length; v++) {
-                if (!newPeople.includes(arrayOfObjects.polls[pollInd].poll.votes[c][v])) {
+            for (let v=0; v<arrayOfObjects.polls[pollInd].poll.votes[c].length;v++){
+                if (!newPeople.includes(arrayOfObjects.polls[pollInd].poll.votes[c][v])){
                     newPeople.push(arrayOfObjects.polls[pollInd].poll.votes[c][v]);
-                    numVoteMes += "+"
                 }
             }
-
         }
-        //get number of bots
-        await message.channel.members.forEach(async m => {
-            if (m.user.bot) {
-                numOfBots++;
-            }
-        })
-        //get number of no votes
-        let noVotes = message.channel.members.size - numOfBots - newPeople.length;
-        for (let v = 0; v < noVotes; v++) {
-            numVoteMes += "-"
-        }
-        numVoteMes += "]"
-
-        //compile individual options vote graphic
         for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.votes.length; i++) {
             //leave blank if no votes
             if (total == 0) {
@@ -417,9 +388,11 @@ async function updatePollMessage(pollInd, message, bot) {
                 votes[i] += "] " + Math.trunc(arrayOfObjects.polls[pollInd].poll.votes[i].length / total * 100) + "%";
             }
         }
-
+        //
+        let noVotePeople = message.channel.members.size - newPeople.length - 1;
+        
         //recreate whole message
-        let mes = "```" + "\n" + "Poll by " + arrayOfObjects.polls[pollInd].poll.author + " --- " + numVoteMes + "\n" + arrayOfObjects.polls[pollInd].poll.title  + "\n";
+        let mes = "```" + "\n" + "Poll by " + arrayOfObjects.polls[pollInd].poll.author + "\n" + arrayOfObjects.polls[pollInd].poll.title + ' ( ' + noVotePeople + " people haven't voted yet )"  + "\n";
         for (let i = 0; i < arrayOfObjects.polls[pollInd].poll.options.length; i++) {
             mes += arrayOfObjects.polls[pollInd].poll.options[i] + " " + votes[i] + "\n" + "---------" + "\n";
         }
@@ -431,9 +404,18 @@ async function updatePollMessage(pollInd, message, bot) {
 
         message.edit(mes + arrayOfObjects.polls[pollInd].poll.description);
 
-        fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
-            if (err) throw err
+
+        let temp = JSON.stringify(arrayOfObjects);
+
+        try{
+                fs.writeFileSync(pollList, temp);
+        }
+        catch (er){
             console.log(`Updated Poll ${pollInd} in channel`);
-        });
+        }    
+        // fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
+        //     if (err) throw err
+        //     console.log(`Updated Poll ${pollInd} in channel`);
+        // });
     })
 }
