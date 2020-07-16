@@ -2,6 +2,7 @@ const Discord = module.require("discord.js");
 const store = require(__dirname + "/pollUtils.js");
 
 module.exports.run = async (bot, message, args) => {
+    if (message.guild === null) return message.channel.send("Polls will not work in DMs");
     //use pollUtils remove to delete poll from memory
     store.remove(args[0], message);   
 }

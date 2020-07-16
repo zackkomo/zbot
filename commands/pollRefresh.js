@@ -2,6 +2,7 @@ const Discord = module.require("discord.js");
 const store = require(__dirname + "/pollUtils.js");
 
 module.exports.run = async (bot, message, args) => {
+    if (message.guild === null) return message.channel.send("Polls will not work in DMs");
     //use pollUtils refresh to refresh polls
     store.refresh(bot);   
 }

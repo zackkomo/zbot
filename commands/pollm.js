@@ -4,7 +4,7 @@ const store = require(__dirname + "/pollUtils.js");
 const emotes = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
 
 module.exports.run = async (bot, message, args) => {
-    
+    if (message.guild === null) return message.channel.send("Polls will not work in DMs");
     //get the number of arguements between the "
     let count = (message.content.match(/"/g) || []).length;
     //make sure if there are special characters to make them part of the string
