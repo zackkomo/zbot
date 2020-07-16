@@ -209,8 +209,9 @@ exports.update = async (reaction, user, action, bot) => {
                 fs.writeFile(pollList, JSON.stringify(arrayOfObjects), 'utf-8', function (err) {
                     if (err) throw err
                     console.log(`Done updating poll ${pollInd}!`);
+                }).then( () =>{
                     updatePollMessage(pollInd, reaction.message, bot);
-                });
+                })
             }
             else {
                 reaction.remove(user);
@@ -233,7 +234,7 @@ exports.refresh = async (bot) => {
                 console.log(`Done refreshing polls!`);
 
                 for (let step = 0; step < arrayChanges.length; step++) {
-                    updatePollMessage(arrayChanges[step], null, bot);
+                    await updatePollMessage(arrayChanges[step], null, bot);
                 }
             });
         })
