@@ -60,6 +60,9 @@ exports.remove = async (num, message) => {
 
 
         let arrayOfObjects = JSON.parse(data)
+        if (num == null || num == undefined){
+            return message.channel.send("Please provide a poll number.");
+        }
         if (arrayOfObjects.polls.length <= num || num < 0) {
             return message.channel.send("There is no poll with that poll number");
         }
