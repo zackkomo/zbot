@@ -4,6 +4,7 @@ const minimumPermissions = ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_MESSAGES", 
 
 
 module.exports.run = async (bot, message, args) => {
+    if (message.guild === null) return message.channel.send("You cannot make a channel here");
 
     //get the number of arguements between the "
     let count = (message.content.match(/"/g) || []).length;

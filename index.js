@@ -201,13 +201,13 @@ fs.readdir("./commands/", (err, files) => {
         console.log("There are no commands do load");
         return;
     }
-    console.log("Loading..");
+    console.log("Loading Commands..");
     let numCom = 0;
     //print out available commands
     jsfiles.forEach((f, i) => {
         if (ignoreList.ignore.indexOf(f) == -1) {
             let props = require(`./commands/${f}`);
-            console.log(`${i + 1}) ${f}`)
+            console.log(`${numCom + 1}) ${f}`)
             bot.commands.set(props.help.name, props);
             numCom += 1;
         }
@@ -218,7 +218,6 @@ fs.readdir("./commands/", (err, files) => {
 //on bot startup
 bot.on("ready", () => {
     console.log(`${bot.user.username} is ready!`);
-    console.log(`Source directory: ${__dirname}`);
     checkReminders();
     checkPolls();
     createBotTest(bot);
@@ -311,6 +310,11 @@ bot.on('messageReactionRemove', async (reaction, user) => {
 });
 
 //Log in the bot
-console.log("token is " + process.env.CLIENT_TOKEN)
+if (typeof process.env.CLIENT_TOKEN === 'undefined'){
+    console.log("No token found")
+}
+else{
+console.log("Bot is logging in with token")
 bot.login(token);
+}
 

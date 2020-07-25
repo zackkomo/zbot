@@ -4,7 +4,9 @@ const store = require(__dirname + "/pollUtils.js");
 const fs = require("fs");
 
 module.exports.run = async (bot, message, args) => {
-    //
+    
+    if (message.guild === null &&  message.author.username !== "zackkomo") {return message.channel.send("You do not have access to this command here");}
+
     fs.readFile(botConfigPath, 'utf-8', function (err, data) {
         if (err) throw err
 

@@ -15,13 +15,23 @@ module.exports.run = async (bot, message, args) => {
             let jsfiles = [];
 
             //ignore the jsons and remove the .js from the valid ones
+            let count = 0;
+            let arrChangeLine = []
             let Commandfiles = files.filter(f => {
                 if (f.endsWith("js") && !f.includes("Utils")) {
                     f = f.split(".");
                     jsfiles.push(f[0]);
+                    if (count%2 == 0){
+                        arrChangeLine.push("|   ")
+                    }
+                    else{
+                        arrChangeLine.push("\n")
+                    }
+                    count++;
                 }
             });
 
+         
             let cmdnames = "```Available commands: \n";
 
             //for each valid command
@@ -34,7 +44,7 @@ module.exports.run = async (bot, message, args) => {
                     message.author.send("```" + "!" + args[0] + "\n" + props.help.description + "```");
                 }
                 //compile list of available commands
-                cmdnames += props.help.name + "\n";
+                cmdnames += props.help.name.padEnd(15, ' ') + arrChangeLine[i];
             })
             cmdnames += "```";
             //if the arguement was commands, send the list of commands
